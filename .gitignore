@@ -1,4 +1,4 @@
-# Time-stamp: <2023-04-15 16:50:55 krylon>
+# Time-stamp: <2023-05-30 21:13:12 krylon>
 # Emacs backup and auto-save files
 *~
 .\#*
@@ -105,8 +105,8 @@ templates.go
 # Backup files
 *.bak
 
-pkman
-bak.pkman
+uptimed
+bak.uptimed
 
 *_string.go
 *_gen.go
