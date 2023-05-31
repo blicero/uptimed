@@ -7,4 +7,12 @@ require (
 	github.com/odeke-em/go-uuid v0.0.0-20151221120446-b211d769a9aa
 )
 
-require github.com/blicero/krylib v0.0.0-20230308180103-2ef208d8985d // indirect
+require (
+	github.com/blicero/krylib v0.0.0-20230308180103-2ef208d8985d // indirect
+	github.com/go-ole/go-ole v1.2.6 // indirect
+	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
+	github.com/tklauser/go-sysconf v0.3.11 // indirect
+	github.com/tklauser/numcpus v0.6.0 // indirect
+	github.com/yusufpapurcu/wmi v1.2.3 // indirect
+	golang.org/x/sys v0.8.0 // indirect
+)
