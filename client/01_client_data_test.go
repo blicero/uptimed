@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 31. 05. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-05-31 18:50:30 krylon>
+// Time-stamp: <2023-05-31 19:02:02 krylon>
 
 package client
 
@@ -40,4 +40,6 @@ func TestClientData(t *testing.T) {
 	} else if record == nil {
 		t.Error("GetData did not return an error, but it didn't return any data, either.")
 	}
+
+	t.Logf("Acquired data: %s", record)
 } // func TestClientData(t *testing.T)
