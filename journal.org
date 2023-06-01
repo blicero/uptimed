@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2023-05-31 16:15:15 krylon>
+# Time-stamp: <2023-06-01 21:54:43 krylon>
 #
 #+TAGS: optimize(o) refactor(r) bug(b) feature(f) architecture(a)
 #+TAGS: web(w) database(d) javascript(j)
@@ -13,10 +13,14 @@
   several systems and watch the recorded data in a web interface.
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 20
-   #+CAPTION: Clock summary at [2023-05-31 Mi 15:19]
-   | Headline     | Time   |
-   |--------------+--------|
-   | *Total time* | *0:00* |
+   #+CAPTION: Clock summary at [2023-06-01 Do 21:54]
+   | Headline             | Time   |      |      |
+   |----------------------+--------+------+------|
+   | *Total time*         | *3:19* |      |      |
+   |----------------------+--------+------+------|
+   | uptimed              | 3:19   |      |      |
+   | \_  Components [0/0] |        | 3:19 |      |
+   | \_    Database [0/0] |        |      | 3:19 |
    #+END:
 ** Components [0/0]
    :PROPERTIES:
@@ -27,6 +31,9 @@
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: children
+    :END:
+    :LOGBOOK:
+    CLOCK: [2023-06-01 Do 18:33]--[2023-06-01 Do 21:52] =>  3:19
     :END:
     I'm not sure I want to use SQLite *again*, maybe I should give nutsdb a
     try. It has transactions, runs embedded, and it's written in pure Go.
