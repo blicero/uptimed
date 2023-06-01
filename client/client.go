@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 31. 05. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-05-31 18:16:13 krylon>
+// Time-stamp: <2023-06-01 00:17:18 krylon>
 
 // Package client implements the data acquisition and communication with
 // the server.
@@ -10,6 +10,7 @@ package client
 
 import (
 	"log"
+	"os"
 	"time"
 
 	"github.com/blicero/uptimed/common"
@@ -21,7 +22,8 @@ import (
 // Client contains the state for the client side, i.e. for data acquisition and
 // communication with the server.
 type Client struct {
-	log *log.Logger
+	log  *log.Logger
+	name string
 }
 
 // Create creates a new Client.
@@ -32,6 +34,10 @@ func Create() (*Client, error) {
 	)
 
 	if c.log, err = common.GetLogger(logdomain.Client); err != nil {
+		return nil, err
+	} else if c.name, err = os.Hostname(); err != nil {
+		c.log.Printf("[ERROR] Cannot query hostname: %s\n",
+			err.Error())
 		return nil, err
 	}
 
@@ -44,7 +50,10 @@ func (c *Client) GetData() (*common.Record, error) {
 		err        error
 		uptimeSecs uint64
 		loadavg    *load.AvgStat
-		r          = &common.Record{Timestamp: time.Now()}
+		r          = &common.Record{
+			Hostname:  c.name,
+			Timestamp: time.Now(),
+		}
 	)
 
 	if uptimeSecs, err = host.Uptime(); err != nil {
