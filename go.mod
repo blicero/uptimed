@@ -3,14 +3,16 @@ module github.com/blicero/uptimed
 go 1.20
 
 require (
+	github.com/blicero/krylib v0.0.0-20230308180103-2ef208d8985d
 	github.com/hashicorp/logutils v1.0.0
+	github.com/mattn/go-sqlite3 v1.14.17
 	github.com/odeke-em/go-uuid v0.0.0-20151221120446-b211d769a9aa
+	github.com/shirou/gopsutil v3.21.11+incompatible
 )
 
 require (
-	github.com/blicero/krylib v0.0.0-20230308180103-2ef208d8985d // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
-	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
+	github.com/stretchr/testify v1.8.4 // indirect
 	github.com/tklauser/go-sysconf v0.3.11 // indirect
 	github.com/tklauser/numcpus v0.6.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.3 // indirect
