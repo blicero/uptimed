@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 31. 05. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-01 00:17:18 krylon>
+// Time-stamp: <2023-06-01 18:50:06 krylon>
 
 // Package client implements the data acquisition and communication with
 // the server.
@@ -11,6 +11,7 @@ package client
 import (
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/blicero/uptimed/common"
@@ -39,7 +40,12 @@ func Create() (*Client, error) {
 		c.log.Printf("[ERROR] Cannot query hostname: %s\n",
 			err.Error())
 		return nil, err
+	} else if i := strings.Index(c.name, "."); i != -1 {
+		c.name = c.name[:i-1]
 	}
+
+	c.log.Printf("[DEBUG] Client %s initialized\n",
+		c.name)
 
 	return c, nil
 } // func Create() (*Client, error)
