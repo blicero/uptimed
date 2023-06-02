@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2023-06-02 16:59:30 krylon>
+# Time-stamp: <2023-06-02 21:32:14 krylon>
 #
 #+TAGS: optimize(o) refactor(r) bug(b) feature(f) architecture(a)
 #+TAGS: web(w) database(d) javascript(j)
@@ -13,14 +13,14 @@
   several systems and watch the recorded data in a web interface.
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 20
-   #+CAPTION: Clock summary at [2023-06-02 Fr 16:59]
+   #+CAPTION: Clock summary at [2023-06-02 Fr 17:58]
    | Headline             | Time   |      |      |
    |----------------------+--------+------+------|
-   | *Total time*         | *4:42* |      |      |
+   | *Total time*         | *4:43* |      |      |
    |----------------------+--------+------+------|
-   | uptimed              | 4:42   |      |      |
-   | \_  Components [0/0] |        | 4:42 |      |
-   | \_    Database [0/0] |        |      | 4:42 |
+   | uptimed              | 4:43   |      |      |
+   | \_  Components [0/0] |        | 4:43 |      |
+   | \_    Database [0/0] |        |      | 4:43 |
    #+END:
 ** Components [0/0]
    :PROPERTIES:
@@ -33,6 +33,7 @@
     :VISIBILITY: children
     :END:
     :LOGBOOK:
+    CLOCK: [2023-06-02 Fr 17:57]--[2023-06-02 Fr 17:58] =>  0:01
     CLOCK: [2023-06-02 Fr 16:40]--[2023-06-02 Fr 16:59] =>  0:19
     CLOCK: [2023-06-02 Fr 10:12]--[2023-06-02 Fr 10:51] =>  0:39
     CLOCK: [2023-06-02 Fr 09:35]--[2023-06-02 Fr 10:00] =>  0:25
@@ -44,10 +45,14 @@
     problems.
     *sigh* I'm going to use SQLite. There is no reason /not/ to use it,
     really.
-*** Backend [0/0]
+*** Server [0/0]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: children
+    :END:
+    :LOGBOOK:
+    CLOCK: [2023-06-02 Fr 19:22]--[2023-06-02 Fr 21:32] =>  2:10
+    CLOCK: [2023-06-02 Fr 17:58]--[2023-06-02 Fr 19:14] =>  1:16
     :END:
     I'm going to use a web server both for the frontend and for the
     client-server communication. I'll need the web server anyway, might as
