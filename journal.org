@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2023-06-01 21:54:43 krylon>
+# Time-stamp: <2023-06-02 10:00:24 krylon>
 #
 #+TAGS: optimize(o) refactor(r) bug(b) feature(f) architecture(a)
 #+TAGS: web(w) database(d) javascript(j)
@@ -13,14 +13,14 @@
   several systems and watch the recorded data in a web interface.
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 20
-   #+CAPTION: Clock summary at [2023-06-01 Do 21:54]
+   #+CAPTION: Clock summary at [2023-06-02 Fr 10:00]
    | Headline             | Time   |      |      |
    |----------------------+--------+------+------|
-   | *Total time*         | *3:19* |      |      |
+   | *Total time*         | *3:44* |      |      |
    |----------------------+--------+------+------|
-   | uptimed              | 3:19   |      |      |
-   | \_  Components [0/0] |        | 3:19 |      |
-   | \_    Database [0/0] |        |      | 3:19 |
+   | uptimed              | 3:44   |      |      |
+   | \_  Components [0/0] |        | 3:44 |      |
+   | \_    Database [0/0] |        |      | 3:44 |
    #+END:
 ** Components [0/0]
    :PROPERTIES:
@@ -33,6 +33,7 @@
     :VISIBILITY: children
     :END:
     :LOGBOOK:
+    CLOCK: [2023-06-02 Fr 09:35]--[2023-06-02 Fr 10:00] =>  0:25
     CLOCK: [2023-06-01 Do 18:33]--[2023-06-01 Do 21:52] =>  3:19
     :END:
     I'm not sure I want to use SQLite *again*, maybe I should give nutsdb a
