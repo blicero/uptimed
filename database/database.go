@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 01. 06. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-01 21:52:30 krylon>
+// Time-stamp: <2023-06-02 09:59:30 krylon>
 
 // Package database provides the persistence layer of the application.
 // Internally it uses an SQLite database, but the methods it exposes are
@@ -54,6 +54,8 @@ func waitForRetry() {
 	time.Sleep(retryDelay)
 } // func waitForRetry()
 
+// Database wraps the connection to the underlying data store and
+// associated state.
 type Database struct {
 	id      int64
 	db      *sql.DB
@@ -69,10 +71,8 @@ func Open(path string) (*Database, error) {
 		err      error
 		dbExists bool
 		db       = &Database{
-			path:          path,
-			spNameCounter: 1,
-			spNameCache:   make(map[string]string),
-			queries:       make(map[query.ID]*sql.Stmt),
+			path:    path,
+			queries: make(map[query.ID]*sql.Stmt),
 		}
 	)
 
@@ -246,6 +246,7 @@ func (db *Database) PerformMaintenance() error {
 	return nil
 } // func (db *Database) PerformMaintenance() error
 
+// HostGetID looks up the ID for the given hostname.
 func (db *Database) HostGetID(name string) (int64, error) {
 	const qid query.ID = query.HostGetID
 
@@ -323,7 +324,59 @@ EXEC_QUERY:
 		var h common.Host
 
 		if err = rows.Scan(&h.ID, &h.Name); err != nil {
-
+			db.log.Printf("[ERROR] Cannot extract values from row: %s\n",
+				err.Error())
+			return nil, err
 		}
+
+		hosts = append(hosts, h)
 	}
+
+	return hosts, nil
 } // func (db *Database) HostGetAll() ([]common.Host, error)
+
+// FIXME: Couldn't we use an upsert here to make the method idempotent?
+
+// HostAdd adds the given hostname to the database and, if successful, returns
+// the Host's ID.
+func (db *Database) HostAdd(name string) (int64, error) {
+	const qid query.ID = query.HostAdd
+	var (
+		err  error
+		stmt *sql.Stmt
+	)
+
+	if stmt, err = db.getQuery(qid); err != nil {
+		db.log.Printf("[ERROR] Cannot prepare query %s: %s\n",
+			qid,
+			err.Error())
+		return 0, err
+	}
+
+	var rows *sql.Rows
+
+EXEC_QUERY:
+	if rows, err = stmt.Query(name); err != nil {
+		if worthARetry(err) {
+			waitForRetry()
+			goto EXEC_QUERY
+		}
+
+		return 0, err
+	}
+
+	if rows.Next() {
+		var id int64
+
+		if err = rows.Scan(&id); err != nil {
+			db.log.Printf("[ERROR] Cannot extract return value from row: %s\n",
+				err.Error())
+			return 0, err
+		}
+
+		return id, err
+	}
+
+	// CANTHAPPEN
+	return 0, errors.New("Something went wrong")
+} // func (db *Database) HostAdd(name string) (int64, error)
