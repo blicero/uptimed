@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 02. 06. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-02 16:53:24 krylon>
+// Time-stamp: <2023-06-02 17:58:13 krylon>
 
 package database
 

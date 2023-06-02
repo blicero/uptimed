@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 01. 06. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-02 10:50:02 krylon>
+// Time-stamp: <2023-06-02 17:35:25 krylon>
 
 // Package database provides the persistence layer of the application.
 // Internally it uses an SQLite database, but the methods it exposes are
@@ -62,6 +62,7 @@ type Database struct {
 	log     *log.Logger
 	path    string
 	queries map[query.ID]*sql.Stmt
+	hosts   map[string]int64
 }
 
 // Open opens a Database. If the database specified by the path does not exist,
@@ -73,6 +74,7 @@ func Open(path string) (*Database, error) {
 		db       = &Database{
 			path:    path,
 			queries: make(map[query.ID]*sql.Stmt),
+			hosts:   make(map[string]int64),
 		}
 	)
 
@@ -250,6 +252,10 @@ func (db *Database) PerformMaintenance() error {
 func (db *Database) HostGetID(name string) (int64, error) {
 	const qid query.ID = query.HostGetID
 
+	if hid, ok := db.hosts[name]; ok {
+		return hid, nil
+	}
+
 	var (
 		err  error
 		stmt *sql.Stmt
@@ -284,6 +290,7 @@ EXEC_QUERY:
 			return -1, err
 		}
 
+		db.hosts[name] = id
 		return id, nil
 	}
 
@@ -329,6 +336,7 @@ EXEC_QUERY:
 			return nil, err
 		}
 
+		db.hosts[h.Name] = h.ID
 		hosts = append(hosts, h)
 	}
 
@@ -376,6 +384,7 @@ EXEC_QUERY:
 			return 0, err
 		}
 
+		db.hosts[name] = id
 		return id, err
 	}
 
