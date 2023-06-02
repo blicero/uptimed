@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2023-06-02 10:51:27 krylon>
+# Time-stamp: <2023-06-02 16:59:30 krylon>
 #
 #+TAGS: optimize(o) refactor(r) bug(b) feature(f) architecture(a)
 #+TAGS: web(w) database(d) javascript(j)
@@ -13,14 +13,14 @@
   several systems and watch the recorded data in a web interface.
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 20
-   #+CAPTION: Clock summary at [2023-06-02 Fr 10:51]
+   #+CAPTION: Clock summary at [2023-06-02 Fr 16:59]
    | Headline             | Time   |      |      |
    |----------------------+--------+------+------|
-   | *Total time*         | *4:23* |      |      |
+   | *Total time*         | *4:42* |      |      |
    |----------------------+--------+------+------|
-   | uptimed              | 4:23   |      |      |
-   | \_  Components [0/0] |        | 4:23 |      |
-   | \_    Database [0/0] |        |      | 4:23 |
+   | uptimed              | 4:42   |      |      |
+   | \_  Components [0/0] |        | 4:42 |      |
+   | \_    Database [0/0] |        |      | 4:42 |
    #+END:
 ** Components [0/0]
    :PROPERTIES:
@@ -33,6 +33,7 @@
     :VISIBILITY: children
     :END:
     :LOGBOOK:
+    CLOCK: [2023-06-02 Fr 16:40]--[2023-06-02 Fr 16:59] =>  0:19
     CLOCK: [2023-06-02 Fr 10:12]--[2023-06-02 Fr 10:51] =>  0:39
     CLOCK: [2023-06-02 Fr 09:35]--[2023-06-02 Fr 10:00] =>  0:25
     CLOCK: [2023-06-01 Do 18:33]--[2023-06-01 Do 21:52] =>  3:19
