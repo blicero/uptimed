@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 01. 06. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-02 09:59:30 krylon>
+// Time-stamp: <2023-06-02 10:50:02 krylon>
 
 // Package database provides the persistence layer of the application.
 // Internally it uses an SQLite database, but the methods it exposes are
@@ -365,6 +365,8 @@ EXEC_QUERY:
 		return 0, err
 	}
 
+	defer rows.Close() // nolint: errcheck,gosec
+
 	if rows.Next() {
 		var id int64
 
@@ -380,3 +382,159 @@ EXEC_QUERY:
 	// CANTHAPPEN
 	return 0, errors.New("Something went wrong")
 } // func (db *Database) HostAdd(name string) (int64, error)
+
+// RecordAdd adds a new Record to the database.
+func (db *Database) RecordAdd(r *common.Record) error {
+	const qid query.ID = query.RecordAdd
+	var (
+		err    error
+		stmt   *sql.Stmt
+		hostID int64
+	)
+
+	if stmt, err = db.getQuery(qid); err != nil {
+		db.log.Printf("[ERROR] Cannot prepare query %s: %s\n",
+			qid,
+			err.Error())
+		return err
+	} else if hostID, err = db.HostGetID(r.Hostname); err != nil {
+		db.log.Printf("[ERROR] Cannot query ID for Host %s: %s\n",
+			r.Hostname,
+			err.Error())
+		return err
+	}
+
+	var rows *sql.Rows
+
+EXEC_QUERY:
+	if rows, err = stmt.Query(hostID, r.Timestamp.Unix(), r.Uptime.Seconds(), r.Load[0], r.Load[1], r.Load[2]); err != nil {
+		if worthARetry(err) {
+			waitForRetry()
+			goto EXEC_QUERY
+		}
+
+		return err
+	}
+
+	defer rows.Close() // nolint: errcheck,gosec
+
+	rows.Next()
+
+	if err = rows.Scan(&r.ID); err != nil {
+		db.log.Printf("[ERROR] Cannot extract Record ID: %s\n",
+			err.Error())
+		return err
+	}
+
+	return nil
+} // func (db *Database) RecordAdd(r *common.Record) error
+
+// RecordGetByPeriod returns all Records for the given period.
+func (db *Database) RecordGetByPeriod(t1, t2 time.Time) ([]common.Record, error) {
+	const qid query.ID = query.RecordGetByPeriod
+	var (
+		err  error
+		stmt *sql.Stmt
+	)
+
+	if stmt, err = db.getQuery(qid); err != nil {
+		db.log.Printf("[ERROR] Cannot prepare query %s: %s\n",
+			qid,
+			err.Error())
+		return nil, err
+	}
+
+	var rows *sql.Rows
+
+EXEC_QUERY:
+	if rows, err = stmt.Query(t1.Unix(), t2.Unix()); err != nil {
+		if worthARetry(err) {
+			waitForRetry()
+			goto EXEC_QUERY
+		}
+
+		return nil, err
+	}
+
+	defer rows.Close() // nolint: errcheck,gosec
+
+	var records = make([]common.Record, 0)
+
+	for rows.Next() {
+		var (
+			stamp, uptime int64
+			r             common.Record
+		)
+
+		if err = rows.Scan(&r.ID, &r.Hostname, &stamp, &uptime, &r.Load[0], &r.Load[1], &r.Load[2]); err != nil {
+			db.log.Printf("[ERROR] Cannot extract values from Rows: %s\n",
+				err.Error())
+			return nil, err
+		}
+
+		r.Timestamp = time.Unix(stamp, 0)
+		r.Uptime = time.Second * time.Duration(uptime)
+
+		records = append(records, r)
+	}
+
+	return records, nil
+} // func (db *Database) RecordGetByPeriod(t1, t2 time.Time) ([]common.Record, error)
+
+// RecordGetByHost loads all Records for the given Host
+func (db *Database) RecordGetByHost(name string) ([]common.Record, error) {
+	const qid query.ID = query.RecordGetByHost
+	var (
+		err    error
+		stmt   *sql.Stmt
+		hostID int64
+	)
+
+	if stmt, err = db.getQuery(qid); err != nil {
+		db.log.Printf("[ERROR] Cannot prepare query %s: %s\n",
+			qid,
+			err.Error())
+		return nil, err
+	} else if hostID, err = db.HostGetID(name); err != nil {
+		db.log.Printf("[ERROR] Unknown Host %s: %s\n",
+			name,
+			err.Error())
+		return nil, err
+	}
+
+	var rows *sql.Rows
+
+EXEC_QUERY:
+	if rows, err = stmt.Query(hostID); err != nil {
+		if worthARetry(err) {
+			waitForRetry()
+			goto EXEC_QUERY
+		}
+
+		return nil, err
+	}
+
+	defer rows.Close() // nolint: errcheck,gosec
+
+	var records = make([]common.Record, 0)
+
+	for rows.Next() {
+		var (
+			stamp, uptime int64
+			r             = common.Record{Hostname: name}
+		)
+
+		if err = rows.Scan(&r.ID, &stamp, &uptime, &r.Load[0], &r.Load[1], &r.Load[2]); err != nil {
+			db.log.Printf("[ERROR] Cannot extract values from Rows: %s\n",
+				err.Error())
+			return nil, err
+		}
+
+		r.Timestamp = time.Unix(stamp, 0)
+		r.Uptime = time.Second * time.Duration(uptime)
+
+		records = append(records, r)
+	}
+
+	return records, nil
+} // func (db *Database) RecordGetByHost(name string) ([]common.Record, error)

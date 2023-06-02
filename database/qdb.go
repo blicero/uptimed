@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 01. 06. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-01 18:44:03 krylon>
+// Time-stamp: <2023-06-02 10:12:45 krylon>
 
 package database
 
@@ -15,6 +15,7 @@ var qDB = map[query.ID]string{
 	query.RecordAdd: `
 INSERT INTO record (host_id, timestamp, uptime, load1, load5, load15)
 VALUES             (      ?,         ?,      ?,     ?,     ?,      ?)
+RETURNING id
 `,
 	query.RecordGetByPeriod: `
 SELECT
