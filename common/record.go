@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 31. 05. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-01 20:52:01 krylon>
+// Time-stamp: <2023-06-02 10:21:56 krylon>
 
 package common
 
@@ -25,6 +25,7 @@ func (h *Host) String() string {
 
 // Record is a data record the client submits to the server.
 type Record struct {
+	ID        int64
 	Hostname  string
 	Timestamp time.Time
 	Uptime    time.Duration
