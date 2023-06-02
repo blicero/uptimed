@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 01. 06. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-01 18:25:01 krylon>
+// Time-stamp: <2023-06-02 16:56:26 krylon>
 
 package database
 
@@ -25,8 +25,7 @@ CREATE TABLE record (
     FOREIGN KEY (host_id) REFERENCES host (id),
     UNIQUE (timestamp, host_id),
     CHECK (uptime >= 0),
-    CHECK (load1 >= 0.0 AND load5 >= 0.0 AND load15 >= 0.0),
-    CHECK (hostname <> '')
+    CHECK (load1 >= 0.0 AND load5 >= 0.0 AND load15 >= 0.0)
 )
 `,
 	"CREATE INDEX rec_host_idx ON record (host_id)",
