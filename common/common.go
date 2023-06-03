@@ -2,7 +2,7 @@
 // -*- coding: utf-8; mode: go; -*-
 // Created on 23. 12. 2015 by Benjamin Walkenhorst
 // (c) 2015 Benjamin Walkenhorst
-// Time-stamp: <2023-06-02 18:07:43 krylon>
+// Time-stamp: <2023-06-03 16:33:15 krylon>
 
 // Package common provides constants, variables and functions used
 // throughout the application.
@@ -16,6 +16,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 	"time"
 
 	"github.com/blicero/uptimed/logdomain"
@@ -69,6 +70,10 @@ func init() {
 		PackageLevels[id] = MinLogLevel
 	}
 } // func init()
+
+// SuffixPattern is a regular expression that matches the suffix of a file name.
+// For "text.txt", it should match ".txt" and capture "txt".
+var SuffixPattern = regexp.MustCompile("([.][^.]+)$")
 
 // BaseDir is the folder where all application-specific files (database,
 // log files, etc) are stored.
