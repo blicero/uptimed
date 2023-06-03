@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 02. 06. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-02 18:09:54 krylon>
+// Time-stamp: <2023-06-03 16:32:34 krylon>
 
 package database
 
@@ -130,14 +130,6 @@ func (pool *Pool) GetNoWait() (*Database, error) {
 func (pool *Pool) Put(db *Database) {
 	link := &dblink{
 		db: db,
-	}
-
-	if db.tx != nil {
-		pool.log.Println("[INFO] DB has pending transaction, rolling back.")
-		if err := db.Rollback(); err != nil {
-			pool.log.Printf("[ERROR] Cannot roll back transaction: %s\n",
-				err.Error())
-		}
 	}
 
 	pool.lock.Lock()
