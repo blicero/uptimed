@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2023-06-02 21:32:14 krylon>
+# Time-stamp: <2023-06-04 19:36:50 krylon>
 #
 #+TAGS: optimize(o) refactor(r) bug(b) feature(f) architecture(a)
 #+TAGS: web(w) database(d) javascript(j)
@@ -13,14 +13,16 @@
   several systems and watch the recorded data in a web interface.
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 20
-   #+CAPTION: Clock summary at [2023-06-02 Fr 17:58]
-   | Headline             | Time   |      |      |
-   |----------------------+--------+------+------|
-   | *Total time*         | *4:43* |      |      |
-   |----------------------+--------+------+------|
-   | uptimed              | 4:43   |      |      |
-   | \_  Components [0/0] |        | 4:43 |      |
-   | \_    Database [0/0] |        |      | 4:43 |
+   #+CAPTION: Clock summary at [2023-06-04 So 19:36]
+   | Headline             | Time    |       |      |
+   |----------------------+---------+-------+------|
+   | *Total time*         | *16:56* |       |      |
+   |----------------------+---------+-------+------|
+   | uptimed              | 16:56   |       |      |
+   | \_  Components [0/0] |         | 16:56 |      |
+   | \_    Database [0/0] |         |       | 4:43 |
+   | \_    Server [0/0]   |         |       | 9:58 |
+   | \_    Client [0/0]   |         |       | 2:15 |
    #+END:
 ** Components [0/0]
    :PROPERTIES:
@@ -51,6 +53,8 @@
     :VISIBILITY: children
     :END:
     :LOGBOOK:
+    CLOCK: [2023-06-03 Sa 20:48]--[2023-06-03 Sa 23:22] =>  2:34
+    CLOCK: [2023-06-03 Sa 16:24]--[2023-06-03 Sa 20:22] =>  3:58
     CLOCK: [2023-06-02 Fr 19:22]--[2023-06-02 Fr 21:32] =>  2:10
     CLOCK: [2023-06-02 Fr 17:58]--[2023-06-02 Fr 19:14] =>  1:16
     :END:
@@ -62,6 +66,9 @@
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: children
+    :END:
+    :LOGBOOK:
+    CLOCK: [2023-06-04 So 17:21]--[2023-06-04 So 19:36] =>  2:15
     :END:
     The client should be relatively straightforward, I think. I'm going to
     start here and work on gathering the data required.
