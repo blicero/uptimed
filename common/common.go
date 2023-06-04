@@ -2,7 +2,7 @@
 // -*- coding: utf-8; mode: go; -*-
 // Created on 23. 12. 2015 by Benjamin Walkenhorst
 // (c) 2015 Benjamin Walkenhorst
-// Time-stamp: <2023-06-03 16:33:15 krylon>
+// Time-stamp: <2023-06-03 21:37:32 krylon>
 
 // Package common provides constants, variables and functions used
 // throughout the application.
@@ -64,6 +64,9 @@ var PackageLevels = make(map[logdomain.ID]logutils.LogLevel, len(LogLevels))
 
 // MinLogLevel is the mininum log level all loggers forward.
 const MinLogLevel = "TRACE"
+
+// EncJSON is the MIME type used for JSON payloads.
+const EncJSON = "application/json"
 
 func init() {
 	for _, id := range logdomain.AllDomains() {

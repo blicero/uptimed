@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 02. 06. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-03 16:38:41 krylon>
+// Time-stamp: <2023-06-04 17:41:37 krylon>
 
 package web
 
@@ -120,9 +120,112 @@ func Open(addr string) (*Server, error) {
 	srv.router.HandleFunc("/favicon.ico", srv.handleFavIco)
 	srv.router.HandleFunc("/static/{file}", srv.handleStaticFile)
 	srv.router.HandleFunc("/ws/report", srv.handleReport)
+	srv.router.HandleFunc("/ajax/beacon", srv.handleBeacon)
+	srv.router.HandleFunc("/(?:main|start|index)?$", srv.handleMain)
 
 	return srv, nil
 } // func Open(addr string) (*Server, error)
+
+// ListenAndServe enters the HTTP server's main loop, i.e.
+// this method must be called for the Web frontend to handle
+// requests.
+func (srv *Server) ListenAndServe() {
+	var err error
+
+	defer srv.log.Println("[INFO] Web server is shutting down")
+
+	srv.log.Printf("[INFO] Web frontend is going online at %s\n", srv.Address)
+	http.Handle("/", srv.router)
+
+	if err = srv.web.ListenAndServe(); err != nil {
+		if err.Error() != "http: Server closed" {
+			srv.log.Printf("[ERROR] ListenAndServe returned an error: %s\n",
+				err.Error())
+		} else {
+			srv.log.Println("[INFO] HTTP Server has shut down.")
+		}
+	}
+} // func (srv *Server) ListenAndServe()
+
+//////////////////////////////////////////////////////
+// Frontend //////////////////////////////////////////
+//////////////////////////////////////////////////////
+
+func (srv *Server) handleMain(w http.ResponseWriter, r *http.Request) {
+	srv.log.Printf("[TRACE] Handle request for %s\n",
+		r.URL.EscapedPath())
+
+	const tmplName = "main"
+
+	var (
+		err  error
+		msg  string
+		db   *database.Database
+		tmpl *template.Template
+		data = tmplDataMain{
+			tmplDataBase: tmplDataBase{
+				Title:     "Main",
+				Debug:     common.Debug,
+				URL:       r.URL.String(),
+				Timestamp: time.Now(),
+			},
+		}
+	)
+
+	if tmpl = srv.tmpl.Lookup(tmplName); tmpl == nil {
+		msg = fmt.Sprintf("Could not find template %q", tmplName)
+		srv.log.Println("[CRITICAL] " + msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	}
+
+	db = srv.pool.Get()
+	defer srv.pool.Put(db)
+
+	if data.Clients, err = db.HostGetAll(); err != nil {
+		msg = fmt.Sprintf("Failed to load Hosts from database: %s",
+			err.Error())
+		srv.log.Println("[CRITICAL] " + msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	}
+
+	w.Header().Set("Cache-Control", "no-store, max-age=0")
+	w.Header().Set("Content-Type", "text/html")
+	w.WriteHeader(200)
+	if err = tmpl.Execute(w, &data); err != nil {
+		msg = fmt.Sprintf("Error rendering template %q: %s",
+			tmplName,
+			err.Error())
+		srv.sendErrorMessage(w, msg)
+	}
+} // func (srv *Server) handleMain(w http.ResponseWriter, r *http.Request)
+
+//////////////////////////////////////////////////////
+// AJAX //////////////////////////////////////////////
+//////////////////////////////////////////////////////
+
+func (srv *Server) handleBeacon(w http.ResponseWriter, r *http.Request) {
+	// srv.log.Printf("[TRACE] Handle %s from %s\n",
+	// 	r.URL,
+	// 	r.RemoteAddr)
+	var timestamp = time.Now().Format(common.TimestampFormat)
+	const appName = common.AppName + " " + common.Version
+	var jstr = fmt.Sprintf(`{ "Status": true, "Message": "%s", "Timestamp": "%s", "Hostname": "%s" }`,
+		appName,
+		timestamp,
+		hostname())
+	var response = []byte(jstr)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", "no-store, max-age=0")
+	w.WriteHeader(200)
+	w.Write(response) // nolint: errcheck,gosec
+} // func (srv *Web) handleBeacon(w http.ResponseWriter, r *http.Request)
+
+//////////////////////////////////////////////////////
+// Interaction with Clients //////////////////////////
+//////////////////////////////////////////////////////
 
 func (srv *Server) handleReport(w http.ResponseWriter, r *http.Request) {
 	srv.log.Printf("[TRACE] Handle request for %s\n",
@@ -188,6 +291,10 @@ SEND_RESPONSE:
 		srv.log.Println("[ERROR] " + msg)
 	}
 } // func (srv *Server) handleReport(w http.ResponseWriter, r *http.Request)
+
+//////////////////////////////////////////////////////
+// General stuff /////////////////////////////////////
+//////////////////////////////////////////////////////
 
 func (srv *Server) handleFavIco(w http.ResponseWriter, request *http.Request) {
 	srv.log.Printf("[TRACE] Handle request for %s\n",
