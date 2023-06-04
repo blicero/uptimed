@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 01. 06. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-02 17:35:25 krylon>
+// Time-stamp: <2023-06-04 19:31:13 krylon>
 
 // Package database provides the persistence layer of the application.
 // Internally it uses an SQLite database, but the methods it exposes are
@@ -35,6 +35,9 @@ var (
 // ErrInvalidValue indicates that one or more parameters passed to a method
 // had values that are invalid for that operation.
 var ErrInvalidValue = errors.New("Invalid value for parameter")
+
+// ErrNotFound indicates that a search operation has not yielded any results.
+var ErrNotFound = errors.New("Nothing was found")
 
 // If a query returns an error and the error text is matched by this regex, we
 // consider the error as transient and try again after a short delay.
@@ -294,7 +297,7 @@ EXEC_QUERY:
 		return id, nil
 	}
 
-	return -1, nil
+	return -1, ErrNotFound
 } // func (db *Database) HostGetID(name string) (int64, error)
 
 // HostGetAll loads all hosts from the database.
@@ -407,10 +410,16 @@ func (db *Database) RecordAdd(r *common.Record) error {
 			err.Error())
 		return err
 	} else if hostID, err = db.HostGetID(r.Hostname); err != nil {
-		db.log.Printf("[ERROR] Cannot query ID for Host %s: %s\n",
-			r.Hostname,
-			err.Error())
-		return err
+		if errors.Is(err, ErrNotFound) {
+			if hostID, err = db.HostAdd(r.Hostname); err != nil {
+				return err
+			}
+		} else {
+			db.log.Printf("[ERROR] Cannot query ID for Host %s: %s\n",
+				r.Hostname,
+				err.Error())
+			return err
+		}
 	}
 
 	var rows *sql.Rows
