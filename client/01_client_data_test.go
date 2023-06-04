@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 31. 05. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-05-31 19:02:02 krylon>
+// Time-stamp: <2023-06-04 17:38:35 krylon>
 
 package client
 
@@ -17,7 +17,7 @@ var tc *Client
 func TestClientCreate(t *testing.T) {
 	var err error
 
-	if tc, err = Create(); err != nil {
+	if tc, err = Create(""); err != nil {
 		tc = nil
 		t.Errorf("Cannot create Client instance: %s",
 			err.Error())

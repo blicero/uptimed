@@ -2,14 +2,19 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 31. 05. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-01 18:50:06 krylon>
+// Time-stamp: <2023-06-04 17:22:47 krylon>
 
 // Package client implements the data acquisition and communication with
 // the server.
 package client
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
 	"log"
+	"net/http"
+	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -20,19 +25,41 @@ import (
 	"github.com/shirou/gopsutil/load"
 )
 
+// FIXME: Increase to realistic value when done testing.
+const interval = time.Second * 30
+
 // Client contains the state for the client side, i.e. for data acquisition and
 // communication with the server.
 type Client struct {
-	log  *log.Logger
-	name string
+	srvAddr string
+	hc      http.Client
+	log     *log.Logger
+	name    string
 }
 
+const reqPath = "/ws/report"
+
 // Create creates a new Client.
-func Create() (*Client, error) {
+func Create(addr string) (*Client, error) {
 	var (
-		err error
-		c   = new(Client)
+		err     error
+		addrStr string
+		paddr   *url.URL
+		c       = &Client{
+			hc:      http.Client{Transport: &http.Transport{DisableCompression: false}},
+			srvAddr: addr,
+		}
 	)
+
+	addrStr = fmt.Sprintf("http://%s%s",
+		addr,
+		reqPath)
+
+	if paddr, err = url.Parse(addrStr); err != nil {
+		return nil, err
+	}
+
+	c.srvAddr = paddr.String()
 
 	if c.log, err = common.GetLogger(logdomain.Client); err != nil {
 		return nil, err
@@ -82,3 +109,38 @@ func (c *Client) GetData() (*common.Record, error) {
 
 	return r, nil
 } // func (c *Client) GetData() (*common.Record, error)
+
+// Run executes the Client's main loop.
+func (c *Client) Run() error {
+	for {
+		var (
+			err  error
+			data *common.Record
+			buf  []byte
+			rdr  *bytes.Reader
+		)
+
+		if data, err = c.GetData(); err != nil {
+			c.log.Printf("[ERROR] Cannot acquire data: %s\n", err.Error())
+			goto NEXT
+		} else if buf, err = json.Marshal(data); err != nil {
+			c.log.Printf("[ERROR] Cannot serialize data: %s\n", err.Error())
+			goto NEXT
+		}
+
+		rdr = bytes.NewReader(buf)
+
+		if _, err = http.Post(c.srvAddr, common.EncJSON, rdr); err != nil {
+			c.log.Printf("[ERROR] Cannot send data to server %s: %s\n",
+				c.srvAddr,
+				err.Error())
+			goto NEXT
+		}
+
+		c.log.Printf("[INFO] Report sent to Server %s\n",
+			c.srvAddr)
+
+	NEXT:
+		time.Sleep(interval)
+	}
+} // func (c *Client) Run() error
