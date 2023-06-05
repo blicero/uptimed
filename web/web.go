@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 02. 06. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-05 17:30:36 krylon>
+// Time-stamp: <2023-06-05 17:47:21 krylon>
 
 package web
 
@@ -213,9 +213,9 @@ func (srv *Server) handleMain(w http.ResponseWriter, r *http.Request) {
 //////////////////////////////////////////////////////
 
 func (srv *Server) handleBeacon(w http.ResponseWriter, r *http.Request) {
-	srv.log.Printf("[TRACE] Handle %s from %s\n",
-		r.URL,
-		r.RemoteAddr)
+	// srv.log.Printf("[TRACE] Handle %s from %s\n",
+	// 	r.URL,
+	// 	r.RemoteAddr)
 	var timestamp = time.Now().Format(common.TimestampFormat)
 	const appName = common.AppName + " " + common.Version
 	var jstr = fmt.Sprintf(`{ "Status": true, "Message": "%s", "Timestamp": "%s", "Hostname": "%s" }`,
