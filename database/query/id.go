@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 01. 06. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-01 18:28:59 krylon>
+// Time-stamp: <2023-06-05 17:16:35 krylon>
 
 // Package query provides symbolic constants to identify SQL queries to be
 // run on the database.
@@ -22,4 +22,5 @@ const (
 	RecordAdd
 	RecordGetByPeriod
 	RecordGetByHost
+	RecentGetAll
 )

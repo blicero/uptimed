@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 01. 06. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-02 10:12:45 krylon>
+// Time-stamp: <2023-06-05 17:35:20 krylon>
 
 package database
 
@@ -40,5 +40,25 @@ SELECT
   load15
 FROM record
 WHERE host_id = ?
+`,
+	query.RecentGetAll: `
+WITH data AS (
+SELECT
+        r.id,
+        h.name,
+        row_number() OVER (PARTITION BY h.name ORDER BY r.timestamp DESC) AS hid,
+        -- datetime(r.timestamp, 'unixepoch', 'localtime') AS timestamp,
+        r.timestamp,
+        r.uptime,
+        r.load1,
+        r.load5,
+        r.load15
+FROM host h
+RIGHT JOIN record r ON h.id = r.host_id
+)
+SELECT id, name, timestamp, uptime, load1, load5, load15
+FROM data
+WHERE hid = 1
+;
 `,
 }

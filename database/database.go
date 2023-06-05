@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 01. 06. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-04 19:31:13 krylon>
+// Time-stamp: <2023-06-05 17:29:39 krylon>
 
 // Package database provides the persistence layer of the application.
 // Internally it uses an SQLite database, but the methods it exposes are
@@ -556,3 +556,54 @@ EXEC_QUERY:
 
 	return records, nil
 } // func (db *Database) RecordGetByHost(name string) ([]common.Record, error)
+
+// RecentGetAll returns the most recent Record per Host
+func (db *Database) RecentGetAll() ([]common.Record, error) {
+	const qid query.ID = query.RecentGetAll
+	var (
+		err  error
+		stmt *sql.Stmt
+	)
+
+	if stmt, err = db.getQuery(qid); err != nil {
+		db.log.Printf("[ERROR] Cannot prepare query %s: %s\n",
+			qid,
+			err.Error())
+		return nil, err
+	}
+
+	var rows *sql.Rows
+EXEC_QUERY:
+	if rows, err = stmt.Query(); err != nil {
+		if worthARetry(err) {
+			waitForRetry()
+			goto EXEC_QUERY
+		}
+
+		return nil, err
+	}
+
+	defer rows.Close() // nolint: errcheck,gosec
+
+	var records = make([]common.Record, 0)
+
+	for rows.Next() {
+		var (
+			stamp, uptime int64
+			r             common.Record
+		)
+
+		if err = rows.Scan(&r.ID, &r.Hostname, &stamp, &uptime, &r.Load[0], &r.Load[1], &r.Load[2]); err != nil {
+			db.log.Printf("[ERROR] Cannot extract values from Rows: %s\n",
+				err.Error())
+			return nil, err
+		}
+
+		r.Timestamp = time.Unix(stamp, 0)
+		r.Uptime = time.Second * time.Duration(uptime)
+
+		records = append(records, r)
+	}
+
+	return records, nil
+} // func (db *Database) RecentGetAll() ([]common.Record, error)
