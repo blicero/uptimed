@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 31. 05. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-05 16:27:25 krylon>
+// Time-stamp: <2023-06-05 19:20:49 krylon>
 
 // Package client implements the data acquisition and communication with
 // the server.
@@ -26,7 +26,7 @@ import (
 )
 
 // FIXME: Increase to realistic value when done testing.
-const interval = time.Second * 30
+const interval = time.Second * 120
 
 // Client contains the state for the client side, i.e. for data acquisition and
 // communication with the server.
