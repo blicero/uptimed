@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 01. 06. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-05 18:55:12 krylon>
+// Time-stamp: <2023-06-05 20:43:28 krylon>
 
 package database
 
@@ -40,7 +40,7 @@ SELECT
   load5,
   load15
 FROM record
-WHERE host_id = ?
+WHERE host_id = ? AND timestamp >= ?
 ORDER BY timestamp
 `,
 	query.RecentGetAll: `

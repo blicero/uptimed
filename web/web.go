@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 02. 06. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-05 19:19:48 krylon>
+// Time-stamp: <2023-06-05 21:56:12 krylon>
 
 package web
 
@@ -25,7 +25,7 @@ import (
 	"github.com/blicero/uptimed/database"
 	"github.com/blicero/uptimed/logdomain"
 	"github.com/gorilla/mux"
-	"github.com/wcharczuk/go-chart"
+	"github.com/wcharczuk/go-chart/v2"
 )
 
 const poolSize = 4
@@ -120,6 +120,7 @@ func Open(addr string) (*Server, error) {
 
 	srv.router.HandleFunc("/{page:(?:main|start|index)?$}", srv.handleMain)
 	srv.router.HandleFunc("/chart/{hostname:(?:\\w+)$}", srv.handleChart)
+	srv.router.HandleFunc("/host/{hostname:(?:\\w+)$}", srv.handleHost)
 	srv.router.HandleFunc("/favicon.ico", srv.handleFavIco)
 	srv.router.HandleFunc("/static/{file}", srv.handleStaticFile)
 	srv.router.HandleFunc("/ws/report", srv.handleReport)
@@ -210,6 +211,57 @@ func (srv *Server) handleMain(w http.ResponseWriter, r *http.Request) {
 	}
 } // func (srv *Server) handleMain(w http.ResponseWriter, r *http.Request)
 
+func (srv *Server) handleHost(w http.ResponseWriter, r *http.Request) {
+	srv.log.Printf("[TRACE] Handle request for %s from %s\n",
+		r.URL.EscapedPath(),
+		r.RemoteAddr)
+	const tmplName = "single_host"
+
+	var (
+		err  error
+		msg  string
+		db   *database.Database
+		tmpl *template.Template
+		data = tmplDataHost{
+			tmplDataBase: tmplDataBase{
+				Debug:     common.Debug,
+				URL:       r.URL.String(),
+				Timestamp: time.Now(),
+			},
+		}
+	)
+
+	vars := mux.Vars(r)
+	data.Hostname = vars["hostname"]
+	data.Title = data.Hostname
+
+	if tmpl = srv.tmpl.Lookup(tmplName); tmpl == nil {
+		msg = fmt.Sprintf("Could not find template %q", tmplName)
+		srv.log.Println("[CRITICAL] " + msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	}
+
+	db = srv.pool.Get()
+	defer srv.pool.Put(db)
+
+	if data.Records, err = db.RecordGetByHost(data.Hostname, time.Unix(0, 0)); err != nil {
+		srv.log.Printf("[ERROR] Failed to query data for Host %s: %s\n",
+			data.Hostname,
+			err.Error())
+	}
+
+	w.Header().Set("Cache-Control", "no-store, max-age=0")
+	w.Header().Set("Content-Type", "text/html")
+	w.WriteHeader(200)
+	if err = tmpl.Execute(w, &data); err != nil {
+		msg = fmt.Sprintf("Error rendering template %q: %s",
+			tmplName,
+			err.Error())
+		srv.sendErrorMessage(w, msg)
+	}
+} // func (srv *Server) handleHost(w http.ResponseWriter, r *http.Request)
+
 func (srv *Server) handleChart(w http.ResponseWriter, r *http.Request) {
 	srv.log.Printf("[TRACE] Handle request for %s from %s\n",
 		r.URL.EscapedPath(),
@@ -220,6 +272,7 @@ func (srv *Server) handleChart(w http.ResponseWriter, r *http.Request) {
 		msg, hostname string
 		db            *database.Database
 		records       []common.Record
+		yesterday     = time.Now().Add(time.Hour * -24)
 		data          = tmplDataMain{
 			tmplDataBase: tmplDataBase{
 				Debug:     common.Debug,
@@ -236,7 +289,7 @@ func (srv *Server) handleChart(w http.ResponseWriter, r *http.Request) {
 	db = srv.pool.Get()
 	defer srv.pool.Put(db)
 
-	if records, err = db.RecordGetByHost(hostname); err != nil {
+	if records, err = db.RecordGetByHost(hostname, yesterday); err != nil {
 		msg = fmt.Sprintf("Error getting data for Host %s: %s",
 			hostname,
 			err.Error())
@@ -262,6 +315,14 @@ func (srv *Server) handleChart(w http.ResponseWriter, r *http.Request) {
 	}
 
 	graph := chart.Chart{
+		XAxis: chart.XAxis{
+			Name:           "Time",
+			ValueFormatter: chart.TimeValueFormatterWithFormat(common.TimestampFormat),
+		},
+		YAxis: chart.YAxis{
+			Name: "Load Average",
+		},
+		Title: hostname,
 		Series: []chart.Series{
 			chart.TimeSeries{
 				XValues: timestamps,

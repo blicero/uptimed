@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 01. 06. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-05 17:29:39 krylon>
+// Time-stamp: <2023-06-05 20:44:53 krylon>
 
 // Package database provides the persistence layer of the application.
 // Internally it uses an SQLite database, but the methods it exposes are
@@ -500,7 +500,7 @@ EXEC_QUERY:
 } // func (db *Database) RecordGetByPeriod(t1, t2 time.Time) ([]common.Record, error)
 
 // RecordGetByHost loads all Records for the given Host
-func (db *Database) RecordGetByHost(name string) ([]common.Record, error) {
+func (db *Database) RecordGetByHost(name string, begin time.Time) ([]common.Record, error) {
 	const qid query.ID = query.RecordGetByHost
 	var (
 		err    error
@@ -523,7 +523,7 @@ func (db *Database) RecordGetByHost(name string) ([]common.Record, error) {
 	var rows *sql.Rows
 
 EXEC_QUERY:
-	if rows, err = stmt.Query(hostID); err != nil {
+	if rows, err = stmt.Query(hostID, begin.Unix()); err != nil {
 		if worthARetry(err) {
 			waitForRetry()
 			goto EXEC_QUERY

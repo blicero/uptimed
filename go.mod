@@ -9,11 +9,10 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.17
 	github.com/odeke-em/go-uuid v0.0.0-20151221120446-b211d769a9aa
 	github.com/shirou/gopsutil v3.21.11+incompatible
-	github.com/wcharczuk/go-chart v2.0.1+incompatible
+	github.com/wcharczuk/go-chart/v2 v2.1.0
 )
 
 require (
-	github.com/blend/go-sdk v1.20220411.3 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/stretchr/testify v1.8.4 // indirect
