@@ -1,4 +1,4 @@
-# Time-stamp: <2023-05-30 21:13:12 krylon>
+# Time-stamp: <2023-06-05 21:58:49 krylon>
 # Emacs backup and auto-save files
 *~
 .\#*
@@ -107,6 +107,9 @@ templates.go
 
 uptimed
 bak.uptimed
+
+# Sometimes I use VS Code for debugging.
+.vscode
 
 *_string.go
 *_gen.go
