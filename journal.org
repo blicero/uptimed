@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2023-06-05 19:23:33 krylon>
+# Time-stamp: <2023-06-05 22:01:13 krylon>
 #
 #+TAGS: optimize(o) refactor(r) bug(b) feature(f) architecture(a)
 #+TAGS: web(w) database(d) javascript(j) ui(u)
@@ -13,16 +13,16 @@
   several systems and watch the recorded data in a web interface.
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 20
-   #+CAPTION: Clock summary at [2023-06-05 Mo 19:23]
+   #+CAPTION: Clock summary at [2023-06-05 Mo 22:01]
    | Headline             | Time    |       |       |      |
    |----------------------+---------+-------+-------+------|
-   | *Total time*         | *21:34* |       |       |      |
+   | *Total time*         | *23:45* |       |       |      |
    |----------------------+---------+-------+-------+------|
-   | uptimed              | 21:34   |       |       |      |
-   | \_  Components [0/0] |         | 21:34 |       |      |
+   | uptimed              | 23:45   |       |       |      |
+   | \_  Components [0/0] |         | 23:45 |       |      |
    | \_    Database [0/0] |         |       |  4:43 |      |
-   | \_    Server [0/1]   |         |       | 14:36 |      |
-   | \_      Graphing     |         |       |       | 1:26 |
+   | \_    Server [1/2]   |         |       | 16:47 |      |
+   | \_      Graphing     |         |       |       | 3:37 |
    | \_    Client [0/1]   |         |       |  2:15 |      |
    #+END:
 ** Components [0/0]
@@ -48,7 +48,7 @@
     problems.
     *sigh* I'm going to use SQLite. There is no reason /not/ to use it,
     really.
-*** Server [0/1]                                                        :web:
+*** Server [1/2]                                                        :web:
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: children
@@ -65,8 +65,13 @@
     client-server communication. I'll need the web server anyway, might as
     well use it for the clients instead of hand-rolling some half-baked
     protocol myself.
-**** TEST Graphing                                                       :ui:
+**** TODO Compression
+     HTTP allows compression of content, I will look into that.
+**** DONE Graphing                                                       :ui:
+     CLOSED: [2023-06-05 Mo 22:00]
      :LOGBOOK:
+     CLOCK: [2023-06-05 Mo 21:20]--[2023-06-05 Mo 22:00] =>  0:40
+     CLOCK: [2023-06-05 Mo 19:40]--[2023-06-05 Mo 21:11] =>  1:31
      CLOCK: [2023-06-05 Mo 17:57]--[2023-06-05 Mo 19:23] =>  1:26
      :END:
      I want to create beautiful charts, so I'm going to look first for a Go
