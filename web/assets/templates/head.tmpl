@@ -1,5 +1,5 @@
 {{ define "head" }}
-{{/* Time-stamp: <2023-06-03 16:47:35 krylon> */}}
+{{/* Time-stamp: <2023-06-05 16:10:42 krylon> */}}
 <head>
   <title>{{ app_string }}@{{ hostname  }} - {{ .Title }}</title>
   
@@ -24,10 +24,13 @@
      // window.setTimeout(getNewMessages, 1000);
 
 
+     {{/*
      curMessageCnt = {{ len .Messages }};
      if (curMessageCnt == 0) {
        $("#msg_tbl").hide();
-     }
+       }
+        */}}
+   })
   </script>
 
   <link rel="stylesheet" type="text/css" href="/static/style.css" />

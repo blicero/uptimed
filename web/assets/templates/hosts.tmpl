@@ -1,0 +1,22 @@
+{{ define "hosts" }}
+{{/* Created on 05. 06. 2023 */}}
+{{/* Time-stamp: <2023-06-05 16:26:29 krylon> */}}
+<table class="table table-striped table-bordered caption-top">
+  <caption>Hosts</caption>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Hostname</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    {{ range .Clients }}
+    <tr>
+      <td>{{ .ID }}</td>
+      <td>{{ .Name }}</td>
+    </tr>
+    {{ end }}
+  </tbody>
+</table>
+{{ end }}

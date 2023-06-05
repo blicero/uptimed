@@ -1,6 +1,6 @@
 {{ define "main" }}
 {{/* Created on 03. 06. 2023 */}}
-{{/* Time-stamp: <2023-06-03 17:26:44 krylon> */}}
+{{/* Time-stamp: <2023-06-05 17:33:48 krylon> */}}
 <!DOCTYPE html>
 <html>
   {{ template "head" . }}
@@ -8,7 +8,11 @@
   <body>
     {{ template "intro" . }}
 
-    Nothing to see here, move along.
+    {{ template "hosts" . }}
+
+    <hr width="50%" />
+
+    {{ template "records" . }}
 
     {{ template "footer" . }}
   </body>

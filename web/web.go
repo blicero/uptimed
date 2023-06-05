@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 02. 06. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-05 09:58:20 krylon>
+// Time-stamp: <2023-06-05 17:30:36 krylon>
 
 package web
 
@@ -117,11 +117,11 @@ func Open(addr string) (*Server, error) {
 	srv.web.ErrorLog = srv.log
 	srv.web.Handler = srv.router
 
+	srv.router.HandleFunc("/{page:(?:main|start|index)?$}", srv.handleMain)
 	srv.router.HandleFunc("/favicon.ico", srv.handleFavIco)
 	srv.router.HandleFunc("/static/{file}", srv.handleStaticFile)
 	srv.router.HandleFunc("/ws/report", srv.handleReport)
 	srv.router.HandleFunc("/ajax/beacon", srv.handleBeacon)
-	srv.router.HandleFunc("/(?:main|start|index)?$", srv.handleMain)
 
 	return srv, nil
 } // func Open(addr string) (*Server, error)
@@ -185,6 +185,12 @@ func (srv *Server) handleMain(w http.ResponseWriter, r *http.Request) {
 
 	if data.Clients, err = db.HostGetAll(); err != nil {
 		msg = fmt.Sprintf("Failed to load Hosts from database: %s",
+			err.Error())
+		srv.log.Println("[CRITICAL] " + msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	} else if data.Records, err = db.RecentGetAll(); err != nil {
+		msg = fmt.Sprintf("Failed to load recent data from database: %s",
 			err.Error())
 		srv.log.Println("[CRITICAL] " + msg)
 		srv.sendErrorMessage(w, msg)
@@ -303,7 +309,7 @@ func (srv *Server) handleFavIco(w http.ResponseWriter, request *http.Request) {
 		request.URL.EscapedPath())
 
 	const (
-		filename = "html/static/favicon.ico"
+		filename = "assets/static/favicon.ico"
 		mimeType = "image/vnd.microsoft.icon"
 	)
 
@@ -339,7 +345,7 @@ func (srv *Server) handleStaticFile(w http.ResponseWriter, request *http.Request
 
 	vars := mux.Vars(request)
 	filename := vars["file"]
-	path := filepath.Join("html", "static", filename)
+	path := filepath.Join("assets", "static", filename)
 
 	var mimeType string
 

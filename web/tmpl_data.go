@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 03. 06. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-03 17:31:20 krylon>
+// Time-stamp: <2023-06-05 17:30:02 krylon>
 
 package web
 
@@ -23,4 +23,5 @@ type tmplDataBase struct {
 type tmplDataMain struct {
 	tmplDataBase
 	Clients []common.Host
+	Records []common.Record
 }

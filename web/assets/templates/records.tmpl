@@ -1,0 +1,30 @@
+{{ define "records" }}
+{{/* Created on 05. 06. 2023 */}}
+{{/* Time-stamp: <2023-06-05 17:33:23 krylon> */}}
+<table class="table table-script table-bordered caption-top">
+  <caption>Records</caption>
+  <thead>
+    <tr>
+      <th>Hostname</th>
+      <th>Timestamp</th>
+      <th>Uptime</th>
+      <th>Load</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    {{ range .Records }}
+    <tr>
+      <td>{{ .Hostname }}</td>
+      <td>{{ fmt_time .Timestamp }}</td>
+      <td>{{ .Uptime }}</td>
+      <td>
+        {{ index .Load 0}} /
+        {{ index .Load 1 }} /
+        {{ index .Load 2 }}
+      </td>
+    </tr>
+    {{ end }}
+  </tbody>
+</table>
+{{ end }}
