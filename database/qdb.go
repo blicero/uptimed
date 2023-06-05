@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 01. 06. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-05 17:35:20 krylon>
+// Time-stamp: <2023-06-05 18:55:12 krylon>
 
 package database
 
@@ -29,6 +29,7 @@ SELECT
 FROM record r
 JOIN host h ON (r.host_id = h.id)
 WHERE r.timestamp BETWEEN ? AND ?
+ORDER BY r.timestamp
 `,
 	query.RecordGetByHost: `
 SELECT
@@ -40,6 +41,7 @@ SELECT
   load15
 FROM record
 WHERE host_id = ?
+ORDER BY timestamp
 `,
 	query.RecentGetAll: `
 WITH data AS (
