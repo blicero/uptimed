@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 31. 05. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-04 17:22:47 krylon>
+// Time-stamp: <2023-06-05 16:27:25 krylon>
 
 // Package client implements the data acquisition and communication with
 // the server.
@@ -68,7 +68,7 @@ func Create(addr string) (*Client, error) {
 			err.Error())
 		return nil, err
 	} else if i := strings.Index(c.name, "."); i != -1 {
-		c.name = c.name[:i-1]
+		c.name = c.name[:i]
 	}
 
 	c.log.Printf("[DEBUG] Client %s initialized\n",
