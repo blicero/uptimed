@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 02. 06. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-04 17:41:37 krylon>
+// Time-stamp: <2023-06-05 09:58:20 krylon>
 
 package web
 
@@ -152,8 +152,9 @@ func (srv *Server) ListenAndServe() {
 //////////////////////////////////////////////////////
 
 func (srv *Server) handleMain(w http.ResponseWriter, r *http.Request) {
-	srv.log.Printf("[TRACE] Handle request for %s\n",
-		r.URL.EscapedPath())
+	srv.log.Printf("[TRACE] Handle request for %s from %s\n",
+		r.URL.EscapedPath(),
+		r.RemoteAddr)
 
 	const tmplName = "main"
 
@@ -206,9 +207,9 @@ func (srv *Server) handleMain(w http.ResponseWriter, r *http.Request) {
 //////////////////////////////////////////////////////
 
 func (srv *Server) handleBeacon(w http.ResponseWriter, r *http.Request) {
-	// srv.log.Printf("[TRACE] Handle %s from %s\n",
-	// 	r.URL,
-	// 	r.RemoteAddr)
+	srv.log.Printf("[TRACE] Handle %s from %s\n",
+		r.URL,
+		r.RemoteAddr)
 	var timestamp = time.Now().Format(common.TimestampFormat)
 	const appName = common.AppName + " " + common.Version
 	var jstr = fmt.Sprintf(`{ "Status": true, "Message": "%s", "Timestamp": "%s", "Hostname": "%s" }`,
@@ -228,8 +229,9 @@ func (srv *Server) handleBeacon(w http.ResponseWriter, r *http.Request) {
 //////////////////////////////////////////////////////
 
 func (srv *Server) handleReport(w http.ResponseWriter, r *http.Request) {
-	srv.log.Printf("[TRACE] Handle request for %s\n",
-		r.URL.EscapedPath())
+	srv.log.Printf("[TRACE] Handle request for %s from %s\n",
+		r.URL.EscapedPath(),
+		r.RemoteAddr)
 
 	var (
 		err  error
