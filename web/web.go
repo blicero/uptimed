@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 02. 06. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-05 17:47:21 krylon>
+// Time-stamp: <2023-06-05 19:19:48 krylon>
 
 package web
 
@@ -25,6 +25,7 @@ import (
 	"github.com/blicero/uptimed/database"
 	"github.com/blicero/uptimed/logdomain"
 	"github.com/gorilla/mux"
+	"github.com/wcharczuk/go-chart"
 )
 
 const poolSize = 4
@@ -118,6 +119,7 @@ func Open(addr string) (*Server, error) {
 	srv.web.Handler = srv.router
 
 	srv.router.HandleFunc("/{page:(?:main|start|index)?$}", srv.handleMain)
+	srv.router.HandleFunc("/chart/{hostname:(?:\\w+)$}", srv.handleChart)
 	srv.router.HandleFunc("/favicon.ico", srv.handleFavIco)
 	srv.router.HandleFunc("/static/{file}", srv.handleStaticFile)
 	srv.router.HandleFunc("/ws/report", srv.handleReport)
@@ -207,6 +209,84 @@ func (srv *Server) handleMain(w http.ResponseWriter, r *http.Request) {
 		srv.sendErrorMessage(w, msg)
 	}
 } // func (srv *Server) handleMain(w http.ResponseWriter, r *http.Request)
+
+func (srv *Server) handleChart(w http.ResponseWriter, r *http.Request) {
+	srv.log.Printf("[TRACE] Handle request for %s from %s\n",
+		r.URL.EscapedPath(),
+		r.RemoteAddr)
+
+	var (
+		err           error
+		msg, hostname string
+		db            *database.Database
+		records       []common.Record
+		data          = tmplDataMain{
+			tmplDataBase: tmplDataBase{
+				Debug:     common.Debug,
+				URL:       r.URL.String(),
+				Timestamp: time.Now(),
+			},
+		}
+	)
+
+	vars := mux.Vars(r)
+	hostname = vars["hostname"]
+	data.Title = fmt.Sprintf("Recent data for %s", hostname)
+
+	db = srv.pool.Get()
+	defer srv.pool.Put(db)
+
+	if records, err = db.RecordGetByHost(hostname); err != nil {
+		msg = fmt.Sprintf("Error getting data for Host %s: %s",
+			hostname,
+			err.Error())
+		srv.log.Println("[ERROR] " + msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	}
+
+	var (
+		load       [3][]float64
+		timestamps = make([]time.Time, len(records))
+	)
+
+	load[0] = make([]float64, len(records))
+	load[1] = make([]float64, len(records))
+	load[2] = make([]float64, len(records))
+
+	for i, r := range records {
+		timestamps[i] = r.Timestamp
+		load[0][i] = r.Load[0]
+		load[1][i] = r.Load[1]
+		load[2][i] = r.Load[2]
+	}
+
+	graph := chart.Chart{
+		Series: []chart.Series{
+			chart.TimeSeries{
+				XValues: timestamps,
+				YValues: load[0],
+			},
+			chart.TimeSeries{
+				XValues: timestamps,
+				YValues: load[1],
+			},
+			chart.TimeSeries{
+				XValues: timestamps,
+				YValues: load[2],
+			},
+		},
+	}
+
+	w.Header().Set("Content-Type", "image/png")
+	w.Header().Set("Cache-Control", "no-store, max-age=0")
+	w.WriteHeader(200)
+	if err = graph.Render(chart.PNG, w); err != nil {
+		srv.log.Printf("[ERROR] Cannot render chart for %s: %s\n",
+			hostname,
+			err.Error())
+	}
+} // func (srv *Server) handleChart(w http.ResponseWriter, r *http.Request)
 
 //////////////////////////////////////////////////////
 // AJAX //////////////////////////////////////////////

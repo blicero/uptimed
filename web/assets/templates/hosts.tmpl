@@ -1,6 +1,6 @@
 {{ define "hosts" }}
 {{/* Created on 05. 06. 2023 */}}
-{{/* Time-stamp: <2023-06-05 16:26:29 krylon> */}}
+{{/* Time-stamp: <2023-06-05 18:45:04 krylon> */}}
 <table class="table table-striped table-bordered caption-top">
   <caption>Hosts</caption>
   <thead>
@@ -14,7 +14,11 @@
     {{ range .Clients }}
     <tr>
       <td>{{ .ID }}</td>
-      <td>{{ .Name }}</td>
+      <td>
+        <a href="/chart/{{ .Name }}">
+          {{ .Name }}
+        </a>
+      </td>
     </tr>
     {{ end }}
   </tbody>
