@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 02. 06. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-06 23:01:48 krylon>
+// Time-stamp: <2023-06-06 23:44:06 krylon>
 
 package web
 
@@ -271,6 +271,10 @@ func (srv *Server) handleHost(w http.ResponseWriter, r *http.Request) {
 			data.Hostname,
 			err.Error())
 	}
+
+	srv.lock.RLock()
+	data.Period = srv.period
+	srv.lock.RUnlock()
 
 	w.Header().Set("Cache-Control", "no-store, max-age=0")
 	w.Header().Set("Content-Type", "text/html")
