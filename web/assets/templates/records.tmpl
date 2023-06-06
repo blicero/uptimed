@@ -1,6 +1,6 @@
 {{ define "records" }}
 {{/* Created on 05. 06. 2023 */}}
-{{/* Time-stamp: <2023-06-05 17:33:23 krylon> */}}
+{{/* Time-stamp: <2023-06-06 18:55:50 krylon> */}}
 <table class="table table-script table-bordered caption-top">
   <caption>Records</caption>
   <thead>
@@ -15,7 +15,11 @@
   <tbody>
     {{ range .Records }}
     <tr>
-      <td>{{ .Hostname }}</td>
+      <td>
+        <a href="/host/{{ .Hostname }}">
+          {{ .Hostname }}
+        </a>
+      </td>
       <td>{{ fmt_time .Timestamp }}</td>
       <td>{{ .Uptime }}</td>
       <td>
