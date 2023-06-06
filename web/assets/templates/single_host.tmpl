@@ -1,6 +1,6 @@
 {{ define "single_host" }}
 {{/* Created on 05. 06. 2023 */}}
-{{/* Time-stamp: <2023-06-05 21:56:45 krylon> */}}
+{{/* Time-stamp: <2023-06-06 21:22:16 krylon> */}}
 <!DOCTYPE html>
 <html>
   {{ template "head" . }}
@@ -10,7 +10,7 @@
 
     <h4>24 Hour Load running average</h4>
 
-    <img src="/chart/{{ .Hostname }}" />
+    <img id="chart" src="/chart/{{ .Hostname }}" loading="lazy" />
 
     {{ template "records" . }}
 
