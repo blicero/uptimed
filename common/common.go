@@ -2,7 +2,7 @@
 // -*- coding: utf-8; mode: go; -*-
 // Created on 23. 12. 2015 by Benjamin Walkenhorst
 // (c) 2015 Benjamin Walkenhorst
-// Time-stamp: <2023-06-03 21:37:32 krylon>
+// Time-stamp: <2023-06-05 22:10:09 krylon>
 
 // Package common provides constants, variables and functions used
 // throughout the application.
@@ -37,7 +37,7 @@ import (
 // their status.
 const (
 	Debug                    = true
-	Version                  = "0.0.1"
+	Version                  = "0.1.0"
 	AppName                  = "uptimed"
 	TimestampFormat          = "2006-01-02 15:04:05"
 	TimestampFormatMinute    = "2006-01-02 15:04"
