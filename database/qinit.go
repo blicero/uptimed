@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 01. 06. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-05 17:15:25 krylon>
+// Time-stamp: <2023-06-06 18:05:35 krylon>
 
 package database
 
@@ -11,8 +11,9 @@ var qInit = []string{
 CREATE TABLE host (
     id INTEGER PRIMARY KEY,
     name TEXT UNIQUE NOT NULL
-)
+) STRICT
 `,
+	"CREATE INDEX host_name_idx ON host (name)",
 	`
 CREATE TABLE record (
     id INTEGER PRIMARY KEY,
@@ -26,7 +27,7 @@ CREATE TABLE record (
     UNIQUE (timestamp, host_id),
     CHECK (uptime >= 0),
     CHECK (load1 >= 0.0 AND load5 >= 0.0 AND load15 >= 0.0)
-)
+) STRICT
 `,
 	"CREATE INDEX rec_host_idx ON record (host_id)",
 	"CREATE INDEX rec_stamp_idx ON record (timestamp)",
