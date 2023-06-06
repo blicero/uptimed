@@ -1,4 +1,4 @@
-// Time-stamp: <2022-10-24 18:58:09 krylon>
+// Time-stamp: <2023-06-06 21:04:56 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -1170,3 +1170,13 @@ function page_frame_resize () {
     console.log(msg)
     alert(msg)
 } // function page_frame_resize ()
+
+function update_period() {
+    const hourPicker = $("#hours")[0]
+
+    const hours = hourPicker.valueAsNumber
+
+    const seconds = hours * 3600
+
+    saveSetting("chart", "period", seconds)
+} // function update_period()
