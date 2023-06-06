@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2023-06-05 22:01:13 krylon>
+# Time-stamp: <2023-06-06 10:57:23 krylon>
 #
 #+TAGS: optimize(o) refactor(r) bug(b) feature(f) architecture(a)
 #+TAGS: web(w) database(d) javascript(j) ui(u)
@@ -13,17 +13,18 @@
   several systems and watch the recorded data in a web interface.
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 20
-   #+CAPTION: Clock summary at [2023-06-05 Mo 22:01]
-   | Headline             | Time    |       |       |      |
-   |----------------------+---------+-------+-------+------|
-   | *Total time*         | *23:45* |       |       |      |
-   |----------------------+---------+-------+-------+------|
-   | uptimed              | 23:45   |       |       |      |
-   | \_  Components [0/0] |         | 23:45 |       |      |
-   | \_    Database [0/0] |         |       |  4:43 |      |
-   | \_    Server [1/2]   |         |       | 16:47 |      |
-   | \_      Graphing     |         |       |       | 3:37 |
-   | \_    Client [0/1]   |         |       |  2:15 |      |
+   #+CAPTION: Clock summary at [2023-06-06 Di 10:57]
+   | Headline             | Time      |         |       |      |
+   |----------------------+-----------+---------+-------+------|
+   | *Total time*         | *1d 0:22* |         |       |      |
+   |----------------------+-----------+---------+-------+------|
+   | uptimed              | 1d 0:22   |         |       |      |
+   | \_  Components [0/0] |           | 1d 0:22 |       |      |
+   | \_    Database [0/0] |           |         |  4:43 |      |
+   | \_    Server [2/2]   |           |         | 17:24 |      |
+   | \_      Compression  |           |         |       | 0:37 |
+   | \_      Graphing     |           |         |       | 3:37 |
+   | \_    Client [0/1]   |           |         |  2:15 |      |
    #+END:
 ** Components [0/0]
    :PROPERTIES:
@@ -48,7 +49,7 @@
     problems.
     *sigh* I'm going to use SQLite. There is no reason /not/ to use it,
     really.
-*** Server [1/2]                                                        :web:
+*** Server [2/2]                                                        :web:
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: children
@@ -65,8 +66,16 @@
     client-server communication. I'll need the web server anyway, might as
     well use it for the clients instead of hand-rolling some half-baked
     protocol myself.
-**** TODO Compression
+**** DONE Compression
+     CLOSED: [2023-06-06 Di 10:57]
+     :LOGBOOK:
+     CLOCK: [2023-06-06 Di 10:45]--[2023-06-06 Di 10:57] =>  0:12
+     CLOCK: [2023-06-06 Di 10:11]--[2023-06-06 Di 10:36] =>  0:25
+     :END:
      HTTP allows compression of content, I will look into that.
+
+     My first attempt did not work, and it's not important enough to consider
+     pursuing at the moment.
 **** DONE Graphing                                                       :ui:
      CLOSED: [2023-06-05 Mo 22:00]
      :LOGBOOK:
