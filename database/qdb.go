@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 01. 06. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-06 18:56:44 krylon>
+// Time-stamp: <2023-06-06 23:13:19 krylon>
 
 package database
 
@@ -10,7 +10,7 @@ import "github.com/blicero/uptimed/database/query"
 
 var qDB = map[query.ID]string{
 	query.HostGetID:  "SELECT id FROM host WHERE name = ?",
-	query.HostGetAll: "SELECT id, name FROM host",
+	query.HostGetAll: "SELECT id, name FROM host ORDER BY name",
 	query.HostAdd:    "INSERT INTO host (name) VALUES (?) RETURNING id",
 	query.RecordAdd: `
 INSERT INTO record (host_id, timestamp, uptime, load1, load5, load15)
