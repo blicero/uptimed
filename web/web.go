@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 02. 06. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-05 21:56:12 krylon>
+// Time-stamp: <2023-06-06 10:55:22 krylon>
 
 package web
 
@@ -21,6 +21,7 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/CAFxX/httpcompression"
 	"github.com/blicero/uptimed/common"
 	"github.com/blicero/uptimed/database"
 	"github.com/blicero/uptimed/logdomain"
@@ -118,6 +119,10 @@ func Open(addr string) (*Server, error) {
 	srv.web.ErrorLog = srv.log
 	srv.web.Handler = srv.router
 
+	compress, _ := httpcompression.DefaultAdapter()
+
+	srv.router.Use(compress)
+
 	srv.router.HandleFunc("/{page:(?:main|start|index)?$}", srv.handleMain)
 	srv.router.HandleFunc("/chart/{hostname:(?:\\w+)$}", srv.handleChart)
 	srv.router.HandleFunc("/host/{hostname:(?:\\w+)$}", srv.handleHost)
@@ -200,6 +205,8 @@ func (srv *Server) handleMain(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// c := srv.compress(w, r)
+
 	w.Header().Set("Cache-Control", "no-store, max-age=0")
 	w.Header().Set("Content-Type", "text/html")
 	w.WriteHeader(200)
@@ -250,6 +257,8 @@ func (srv *Server) handleHost(w http.ResponseWriter, r *http.Request) {
 			data.Hostname,
 			err.Error())
 	}
+
+	// c := srv.compress(w, r)
 
 	w.Header().Set("Cache-Control", "no-store, max-age=0")
 	w.Header().Set("Content-Type", "text/html")
@@ -354,9 +363,6 @@ func (srv *Server) handleChart(w http.ResponseWriter, r *http.Request) {
 //////////////////////////////////////////////////////
 
 func (srv *Server) handleBeacon(w http.ResponseWriter, r *http.Request) {
-	// srv.log.Printf("[TRACE] Handle %s from %s\n",
-	// 	r.URL,
-	// 	r.RemoteAddr)
 	var timestamp = time.Now().Format(common.TimestampFormat)
 	const appName = common.AppName + " " + common.Version
 	var jstr = fmt.Sprintf(`{ "Status": true, "Message": "%s", "Timestamp": "%s", "Hostname": "%s" }`,
@@ -478,10 +484,7 @@ func (srv *Server) handleFavIco(w http.ResponseWriter, request *http.Request) {
 } // func (srv *Server) handleFavIco(w http.ResponseWriter, request *http.Request)
 
 func (srv *Server) handleStaticFile(w http.ResponseWriter, request *http.Request) {
-	// srv.log.Printf("[TRACE] Handle request for %s\n",
-	// 	request.URL.EscapedPath())
-
-	// Since we controll what static files the server has available, we
+	// Since we control what static files the server has available, we
 	// can easily map MIME type to slice. Soon.
 
 	vars := mux.Vars(request)
@@ -520,6 +523,7 @@ func (srv *Server) handleStaticFile(w http.ResponseWriter, request *http.Request
 		srv.sendErrorMessage(w, msg)
 	} else {
 		defer fh.Close()
+		// c := srv.compress(w, request)
 		w.WriteHeader(200)
 		io.Copy(w, fh) // nolint: errcheck
 	}

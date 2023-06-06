@@ -13,8 +13,11 @@ require (
 )
 
 require (
+	github.com/CAFxX/httpcompression v0.0.8 // indirect
+	github.com/andybalholm/brotli v1.0.4 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
+	github.com/klauspost/compress v1.14.1 // indirect
 	github.com/stretchr/testify v1.8.4 // indirect
 	github.com/tklauser/go-sysconf v0.3.11 // indirect
 	github.com/tklauser/numcpus v0.6.0 // indirect
