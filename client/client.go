@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 31. 05. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-05 19:20:49 krylon>
+// Time-stamp: <2023-06-05 22:16:09 krylon>
 
 // Package client implements the data acquisition and communication with
 // the server.
@@ -130,7 +130,7 @@ func (c *Client) Run() error {
 
 		rdr = bytes.NewReader(buf)
 
-		if _, err = http.Post(c.srvAddr, common.EncJSON, rdr); err != nil {
+		if _, err = c.hc.Post(c.srvAddr, common.EncJSON, rdr); err != nil {
 			c.log.Printf("[ERROR] Cannot send data to server %s: %s\n",
 				c.srvAddr,
 				err.Error())
