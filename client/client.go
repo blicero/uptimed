@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 31. 05. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-05 22:16:09 krylon>
+// Time-stamp: <2023-06-06 18:45:59 krylon>
 
 // Package client implements the data acquisition and communication with
 // the server.
@@ -12,11 +12,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/blicero/uptimed/common"
@@ -25,7 +28,6 @@ import (
 	"github.com/shirou/gopsutil/load"
 )
 
-// FIXME: Increase to realistic value when done testing.
 const interval = time.Second * 120
 
 // Client contains the state for the client side, i.e. for data acquisition and
@@ -117,8 +119,9 @@ func (c *Client) Run() error {
 			err  error
 			data *common.Record
 			buf  []byte
-			rdr  *bytes.Reader
 		)
+
+		c.processBuffered()
 
 		if data, err = c.GetData(); err != nil {
 			c.log.Printf("[ERROR] Cannot acquire data: %s\n", err.Error())
@@ -126,15 +129,10 @@ func (c *Client) Run() error {
 		} else if buf, err = json.Marshal(data); err != nil {
 			c.log.Printf("[ERROR] Cannot serialize data: %s\n", err.Error())
 			goto NEXT
-		}
-
-		rdr = bytes.NewReader(buf)
-
-		if _, err = c.hc.Post(c.srvAddr, common.EncJSON, rdr); err != nil {
-			c.log.Printf("[ERROR] Cannot send data to server %s: %s\n",
-				c.srvAddr,
+		} else if err = c.transmitData(buf); err != nil {
+			c.log.Printf("[ERROR] Cannot send data to server: %s\n",
 				err.Error())
-			goto NEXT
+			c.saveBuffer(buf) // nolint: errcheck
 		}
 
 		c.log.Printf("[INFO] Report sent to Server %s\n",
@@ -144,3 +142,114 @@ func (c *Client) Run() error {
 		time.Sleep(interval)
 	}
 } // func (c *Client) Run() error
+
+func (c *Client) transmitData(buf []byte) error {
+	var (
+		err error
+		rdr = bytes.NewReader(buf)
+		res *http.Response
+	)
+
+	if res, err = c.hc.Post(c.srvAddr, common.EncJSON, rdr); err != nil {
+		c.log.Printf("[ERROR] Cannot send data to server %s: %s\n",
+			c.srvAddr,
+			err.Error())
+
+		return err
+	}
+
+	res.Body.Close()
+
+	return nil
+}
+
+func (c *Client) saveBuffer(buf []byte) error {
+	var (
+		err            error
+		filename, path string
+		fh             *os.File
+	)
+
+	filename = time.Now().Format("20060102-150405.json")
+	path = filepath.Join(common.BufferPath, filename)
+
+	if fh, err = os.Create(path); err != nil {
+		c.log.Printf("[ERROR] Cannot open %s: %s\n",
+			path,
+			err.Error())
+
+		return err
+	}
+
+	defer fh.Close() // nolint: errcheck
+
+	if _, err = fh.Write(buf); err != nil {
+		c.log.Printf("[ERROR] Cannot write JSON data to %s: %s\n",
+			path,
+			err.Error())
+		os.RemoveAll(path) // nolint: errcheck
+
+		return err
+	}
+
+	return nil
+} // func (c *Client) saveBuffer(buf []byte) error
+
+func (c *Client) sendBufferedData(path string, wg *sync.WaitGroup) {
+	var (
+		err error
+		fh  *os.File
+		buf bytes.Buffer
+	)
+
+	defer wg.Done()
+
+	if fh, err = os.Open(path); err != nil {
+		c.log.Printf("[ERROR] Cannot open %s: %s\n",
+			path,
+			err.Error())
+		return
+	}
+
+	defer fh.Close() // nolint: errcheck
+
+	if _, err = io.Copy(&buf, fh); err != nil {
+		c.log.Printf("[ERROR] Failed to read contents of %s: %s\n",
+			path,
+			err.Error())
+		return
+	} else if err = c.transmitData(buf.Bytes()); err != nil {
+		c.log.Printf("[ERROR] Failed to transmit contents of %s to server: %s\n",
+			path,
+			err.Error())
+		return
+	}
+
+	os.RemoveAll(path) // nolint: errcheck
+} // func (c *Client) sendBufferedData(path string)
+
+func (c *Client) processBuffered() {
+	var (
+		err   error
+		files []string
+		glob  = filepath.Join(common.BufferPath, "*.json")
+	)
+
+	if files, err = filepath.Glob(glob); err != nil {
+		c.log.Printf("[ERROR] Cannot read filenames from %s: %s\n",
+			common.BufferPath,
+			err.Error())
+		return
+	} else if len(files) == 0 {
+		return
+	}
+
+	var wg sync.WaitGroup
+
+	for _, path := range files {
+		wg.Add(1)
+		go c.sendBufferedData(path, &wg)
+	}
+
+	wg.Wait()
+} // func (c *Client) processBuffered()
