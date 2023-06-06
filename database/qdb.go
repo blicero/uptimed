@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 01. 06. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-05 20:43:28 krylon>
+// Time-stamp: <2023-06-06 18:56:44 krylon>
 
 package database
 
@@ -61,6 +61,7 @@ RIGHT JOIN record r ON h.id = r.host_id
 SELECT id, name, timestamp, uptime, load1, load5, load15
 FROM data
 WHERE hid = 1
+ORDER BY name
 ;
 `,
 }
