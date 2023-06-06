@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 02. 06. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-06 10:55:22 krylon>
+// Time-stamp: <2023-06-06 23:01:48 krylon>
 
 package web
 
@@ -18,6 +18,9 @@ import (
 	"net/http"
 	"path/filepath"
 	"regexp"
+	"strconv"
+	"strings"
+	"sync"
 	"text/template"
 	"time"
 
@@ -43,6 +46,8 @@ type Server struct {
 	tmpl      *template.Template
 	mimeTypes map[string]string
 	pool      *database.Pool
+	lock      sync.RWMutex
+	period    int64
 }
 
 // Open creates a new Server.
@@ -50,6 +55,7 @@ func Open(addr string) (*Server, error) {
 	var (
 		err error
 		srv = &Server{
+			period: 24,
 			mimeTypes: map[string]string{
 				".css":  "text/css",
 				".map":  "application/json",
@@ -124,12 +130,16 @@ func Open(addr string) (*Server, error) {
 	srv.router.Use(compress)
 
 	srv.router.HandleFunc("/{page:(?:main|start|index)?$}", srv.handleMain)
-	srv.router.HandleFunc("/chart/{hostname:(?:\\w+)$}", srv.handleChart)
 	srv.router.HandleFunc("/host/{hostname:(?:\\w+)$}", srv.handleHost)
-	srv.router.HandleFunc("/favicon.ico", srv.handleFavIco)
-	srv.router.HandleFunc("/static/{file}", srv.handleStaticFile)
+	srv.router.HandleFunc("/prefs", srv.handlePrefs)
+
+	srv.router.HandleFunc("/chart/{hostname:(?:\\w+)$}", srv.handleChart)
+
 	srv.router.HandleFunc("/ws/report", srv.handleReport)
 	srv.router.HandleFunc("/ajax/beacon", srv.handleBeacon)
+
+	srv.router.HandleFunc("/favicon.ico", srv.handleFavIco)
+	srv.router.HandleFunc("/static/{file}", srv.handleStaticFile)
 
 	return srv, nil
 } // func Open(addr string) (*Server, error)
@@ -205,8 +215,6 @@ func (srv *Server) handleMain(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// c := srv.compress(w, r)
-
 	w.Header().Set("Cache-Control", "no-store, max-age=0")
 	w.Header().Set("Content-Type", "text/html")
 	w.WriteHeader(200)
@@ -252,13 +260,17 @@ func (srv *Server) handleHost(w http.ResponseWriter, r *http.Request) {
 	db = srv.pool.Get()
 	defer srv.pool.Put(db)
 
-	if data.Records, err = db.RecordGetByHost(data.Hostname, time.Unix(0, 0)); err != nil {
+	if data.Clients, err = db.HostGetAll(); err != nil {
+		msg = fmt.Sprintf("Failed to load Hosts from database: %s",
+			err.Error())
+		srv.log.Println("[CRITICAL] " + msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	} else if data.Records, err = db.RecordGetByHost(data.Hostname, time.Unix(0, 0)); err != nil {
 		srv.log.Printf("[ERROR] Failed to query data for Host %s: %s\n",
 			data.Hostname,
 			err.Error())
 	}
-
-	// c := srv.compress(w, r)
 
 	w.Header().Set("Cache-Control", "no-store, max-age=0")
 	w.Header().Set("Content-Type", "text/html")
@@ -281,7 +293,8 @@ func (srv *Server) handleChart(w http.ResponseWriter, r *http.Request) {
 		msg, hostname string
 		db            *database.Database
 		records       []common.Record
-		yesterday     = time.Now().Add(time.Hour * -24)
+		hours         int64
+		yesterday     time.Time
 		data          = tmplDataMain{
 			tmplDataBase: tmplDataBase{
 				Debug:     common.Debug,
@@ -290,6 +303,12 @@ func (srv *Server) handleChart(w http.ResponseWriter, r *http.Request) {
 			},
 		}
 	)
+
+	srv.lock.RLock()
+	hours = srv.period
+	srv.lock.RUnlock()
+
+	yesterday = time.Now().Add(time.Hour * time.Duration(hours) * -1)
 
 	vars := mux.Vars(r)
 	hostname = vars["hostname"]
@@ -357,6 +376,84 @@ func (srv *Server) handleChart(w http.ResponseWriter, r *http.Request) {
 			err.Error())
 	}
 } // func (srv *Server) handleChart(w http.ResponseWriter, r *http.Request)
+
+func (srv *Server) handlePrefs(w http.ResponseWriter, r *http.Request) {
+	srv.log.Printf("[TRACE] Handle request for %s from %s\n",
+		r.URL.EscapedPath(),
+		r.RemoteAddr)
+
+	const tmplName = "prefs"
+
+	var (
+		err  error
+		db   *database.Database
+		msg  string
+		tmpl *template.Template
+		data = tmplDataPrefs{
+			tmplDataBase: tmplDataBase{
+				Title:     "Preferences",
+				Timestamp: time.Now(),
+				Debug:     common.Debug,
+				URL:       r.URL.String(),
+			},
+		}
+	)
+
+	srv.lock.RLock()
+	data.Period = srv.period
+	srv.lock.RUnlock()
+
+	db = srv.pool.Get()
+	defer srv.pool.Put(db)
+
+	switch strings.ToLower(r.Method) {
+	case "get":
+		if data.Clients, err = db.HostGetAll(); err != nil {
+			msg = fmt.Sprintf("Failed to load all hosts from database: %s",
+				err.Error())
+			srv.log.Printf("[ERROR] %s\n", msg)
+			srv.sendErrorMessage(w, msg)
+			return
+		}
+
+		tmpl = srv.tmpl.Lookup(tmplName)
+		w.Header().Set("Cache-Control", "no-store, max-age=0")
+		w.Header().Set("Content-Type", "text/html")
+		w.WriteHeader(200)
+		if err = tmpl.Execute(w, &data); err != nil {
+			msg = fmt.Sprintf("Error rendering template %q: %s",
+				tmplName,
+				err.Error())
+			srv.sendErrorMessage(w, msg)
+			return
+		}
+	case "post":
+		if err = r.ParseForm(); err != nil {
+			msg = fmt.Sprintf("Cannot parse form data: %s", err.Error())
+			srv.log.Printf("[ERROR] %s\n", msg)
+			srv.sendErrorMessage(w, msg)
+			return
+		}
+
+		var periodStr = r.FormValue("period")
+		var period int64
+
+		if period, err = strconv.ParseInt(periodStr, 10, 64); err != nil {
+			msg = fmt.Sprintf("Cannot parse Integer %q: %s",
+				periodStr,
+				err.Error())
+			srv.log.Printf("[ERROR] %s\n",
+				err.Error())
+			srv.sendErrorMessage(w, msg)
+			return
+		}
+
+		srv.lock.Lock()
+		srv.period = period
+		srv.lock.Unlock()
+		http.Redirect(w, r, r.Referer(), http.StatusFound)
+	}
+} // func (srv *Server) handlePrefs(w http.ResponseWriter, r *http.Request)
 
 //////////////////////////////////////////////////////
 // AJAX //////////////////////////////////////////////
@@ -523,7 +620,6 @@ func (srv *Server) handleStaticFile(w http.ResponseWriter, request *http.Request
 		srv.sendErrorMessage(w, msg)
 	} else {
 		defer fh.Close()
-		// c := srv.compress(w, request)
 		w.WriteHeader(200)
 		io.Copy(w, fh) // nolint: errcheck
 	}

@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 03. 06. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-06 19:42:58 krylon>
+// Time-stamp: <2023-06-06 22:18:45 krylon>
 
 package web
 
@@ -30,4 +30,9 @@ type tmplDataHost struct {
 	tmplDataBase
 	Hostname string
 	Records  []common.Record
+}
+
+type tmplDataPrefs struct {
+	tmplDataBase
+	Period int64
 }

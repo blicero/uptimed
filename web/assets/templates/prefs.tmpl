@@ -1,0 +1,34 @@
+{{ define "prefs" }}
+{{/* Created on 06. 06. 2023 */}}
+{{/* Time-stamp: <2023-06-06 23:08:23 krylon> */}}
+<!DOCTYPE html>
+<html>
+  {{ template "head" . }}
+
+  <body>
+    {{ template "intro" . }}
+
+    <h2>Preferences</h2>
+
+    <form action="/prefs" method="post">
+    <table class="table">
+      <tr>
+        <th>Reporting period</th>
+        <td>
+          <input id="period" type="number" name="period" min="0" max="672" value="{{ .Period }}" />
+        </td>
+      </tr>
+
+      <tr>
+        <th></th>
+        <td>
+          <input type="submit" value="Save" />
+        </td>
+      </tr>
+    </table>
+    </form>
+
+    {{ template "footer" . }}
+  </body>
+</html>
+{{ end }}
