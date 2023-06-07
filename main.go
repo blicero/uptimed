@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 30. 05. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-04 17:37:02 krylon>
+// Time-stamp: <2023-06-07 09:33:03 krylon>
 
 package main
 
@@ -24,14 +24,17 @@ func main() {
 		common.Version,
 		common.BuildStamp.Format(common.TimestampFormat))
 
+	const defaultAddr = "[::1]"
+
 	var (
-		err         error
-		mode, addr  string
-		defaultAddr = fmt.Sprintf("[::1]:%d", common.WebPort)
+		err        error
+		mode, addr string
+		port       int64
 	)
 
 	flag.StringVar(&mode, "mode", "client", "Tells if we are a client or a server")
 	flag.StringVar(&addr, "addr", defaultAddr, "The network address to listen on (server) or report to (client)")
+	flag.Int64Var(&port, "port", common.WebPort, "The TCP port for the HTTP server to listen on")
 
 	flag.Parse()
 
@@ -44,6 +47,10 @@ func main() {
 		)
 		os.Exit(1)
 	}
+
+	addr = fmt.Sprintf("[%s]:%d",
+		addr,
+		port)
 
 	switch mode {
 	case "client":

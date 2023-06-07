@@ -2,7 +2,7 @@
 // -*- coding: utf-8; mode: go; -*-
 // Created on 23. 12. 2015 by Benjamin Walkenhorst
 // (c) 2015 Benjamin Walkenhorst
-// Time-stamp: <2023-06-06 17:12:08 krylon>
+// Time-stamp: <2023-06-07 09:31:03 krylon>
 
 // Package common provides constants, variables and functions used
 // throughout the application.
@@ -84,11 +84,11 @@ var SuffixPattern = regexp.MustCompile("([.][^.]+)$")
 // DbPath is the path of the main database.
 // WebPort is the TCP port the server listens on.
 var (
-	BaseDir    = filepath.Join(os.Getenv("HOME"), "uptimed.d")
-	LogPath    = filepath.Join(BaseDir, "uptimed.log")
-	DbPath     = filepath.Join(BaseDir, "uptimed.db")
-	BufferPath = filepath.Join(BaseDir, "offline")
-	WebPort    = 1337
+	BaseDir          = filepath.Join(os.Getenv("HOME"), "uptimed.d")
+	LogPath          = filepath.Join(BaseDir, "uptimed.log")
+	DbPath           = filepath.Join(BaseDir, "uptimed.db")
+	BufferPath       = filepath.Join(BaseDir, "offline")
+	WebPort    int64 = 1337
 )
 
 // SetBaseDir sets the BaseDir and related variables.
