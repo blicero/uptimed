@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 29. 10. 2022 by Benjamin Walkenhorst
 // (c) 2022 Benjamin Walkenhorst
-// Time-stamp: <2023-06-02 18:10:13 krylon>
+// Time-stamp: <2023-06-07 13:20:54 krylon>
 
 // Package logdomain provides symbolic constants to identify the various
 // pieces of the application that need to do logging.
@@ -19,6 +19,7 @@ const (
 	Client
 	Database
 	DBPool
+	DNSSD
 	Web
 )
 
@@ -29,6 +30,7 @@ func AllDomains() []ID {
 		Client,
 		Database,
 		DBPool,
+		DNSSD,
 		Web,
 	}
 } // func AllDomains() []ID
