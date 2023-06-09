@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 01. 06. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-06 23:13:19 krylon>
+// Time-stamp: <2023-06-09 17:24:15 krylon>
 
 package database
 
@@ -41,7 +41,7 @@ SELECT
   load15
 FROM record
 WHERE host_id = ? AND timestamp >= ?
-ORDER BY timestamp
+ORDER BY timestamp DESC
 `,
 	query.RecentGetAll: `
 WITH data AS (
