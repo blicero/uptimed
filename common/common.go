@@ -2,7 +2,7 @@
 // -*- coding: utf-8; mode: go; -*-
 // Created on 23. 12. 2015 by Benjamin Walkenhorst
 // (c) 2015 Benjamin Walkenhorst
-// Time-stamp: <2023-06-07 09:31:03 krylon>
+// Time-stamp: <2023-06-09 18:50:33 krylon>
 
 // Package common provides constants, variables and functions used
 // throughout the application.
@@ -93,7 +93,7 @@ var (
 
 // SetBaseDir sets the BaseDir and related variables.
 func SetBaseDir(path string) error {
-	fmt.Printf("Setting BASE_DIR to %s\n", path)
+	fmt.Printf("Setting BaseDir to %s\n", path)
 
 	BaseDir = path
 	LogPath = filepath.Join(BaseDir, "uptimed.log")
@@ -141,7 +141,7 @@ func InitApp() error {
 	err := os.Mkdir(BaseDir, 0755)
 	if err != nil {
 		if !os.IsExist(err) {
-			msg := fmt.Sprintf("Error creating BASE_DIR %s: %s", BaseDir, err.Error())
+			msg := fmt.Sprintf("Error creating BaseDir %s: %s", BaseDir, err.Error())
 			return errors.New(msg)
 		}
 	} else if err = os.Mkdir(BufferPath, 0755); err != nil {
