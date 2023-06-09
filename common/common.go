@@ -2,7 +2,7 @@
 // -*- coding: utf-8; mode: go; -*-
 // Created on 23. 12. 2015 by Benjamin Walkenhorst
 // (c) 2015 Benjamin Walkenhorst
-// Time-stamp: <2023-06-09 18:50:33 krylon>
+// Time-stamp: <2023-06-09 19:20:37 krylon>
 
 // Package common provides constants, variables and functions used
 // throughout the application.
@@ -138,13 +138,16 @@ func GetLogger(dom logdomain.ID) (*log.Logger, error) {
 // InitApp performs some basic preparations for the application to run.
 // Currently, this means creating the BASE_DIR folder.
 func InitApp() error {
-	err := os.Mkdir(BaseDir, 0755)
-	if err != nil {
+	var err error
+
+	if err = os.Mkdir(BaseDir, 0755); err != nil {
 		if !os.IsExist(err) {
 			msg := fmt.Sprintf("Error creating BaseDir %s: %s", BaseDir, err.Error())
 			return errors.New(msg)
 		}
-	} else if err = os.Mkdir(BufferPath, 0755); err != nil {
+	}
+
+	if err = os.Mkdir(BufferPath, 0755); err != nil {
 		if !os.IsExist(err) {
 			msg := fmt.Sprintf("Error creating BufferPath %s: %s", BufferPath, err.Error())
 			return errors.New(msg)
