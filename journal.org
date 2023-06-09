@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2023-06-07 09:52:37 krylon>
+# Time-stamp: <2023-06-09 19:00:52 krylon>
 #
 #+TAGS: optimize(o) refactor(r) bug(b) feature(f) architecture(a)
 #+TAGS: web(w) database(d) javascript(j) ui(u)
@@ -13,23 +13,24 @@
   several systems and watch the recorded data in a web interface.
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 20
-   #+CAPTION: Clock summary at [2023-06-07 Mi 09:52]
-   | Headline                                        | Time      |         |       |      |      |
-   |-------------------------------------------------+-----------+---------+-------+------+------|
-   | *Total time*                                    | *1d 5:58* |         |       |      |      |
-   |-------------------------------------------------+-----------+---------+-------+------+------|
-   | uptimed                                         | 1d 5:58   |         |       |      |      |
-   | \_  Components [2/5]                            |           | 1d 5:58 |       |      |      |
-   | \_    CLI [1/1]                                 |           |         |  0:22 |      |      |
-   | \_      Specify address and port in separate... |           |         |       | 0:22 |      |
-   | \_    Database [0/0]                            |           |         |  4:43 |      |      |
-   | \_    Server [3/4]                              |           |         | 21:05 |      |      |
-   | \_      Compression                             |           |         |       | 0:37 |      |
-   | \_      Graphing                                |           |         |       | 3:37 |      |
-   | \_      Settings                                |           |         |       | 3:41 |      |
-   | \_        Period for chart                      |           |         |       |      | 3:41 |
-   | \_    Client [1/1]                              |           |         |  3:48 |      |      |
-   | \_      Offline buffering                       |           |         |       | 1:33 |      |
+   #+CAPTION: Clock summary at [2023-06-09 Fr 19:00]
+   | Headline                                        | Time       |          |       |      |      |
+   |-------------------------------------------------+------------+----------+-------+------+------|
+   | *Total time*                                    | *1d 16:12* |          |       |      |      |
+   |-------------------------------------------------+------------+----------+-------+------+------|
+   | uptimed                                         | 1d 16:12   |          |       |      |      |
+   | \_  Components [2/5]                            |            | 1d 16:12 |       |      |      |
+   | \_    CLI [1/1]                                 |            |          |  0:22 |      |      |
+   | \_      Specify address and port in separate... |            |          |       | 0:22 |      |
+   | \_    Database [0/0]                            |            |          |  4:43 |      |      |
+   | \_    mDNS [0/0]                                |            |          | 10:14 |      |      |
+   | \_    Server [3/4]                              |            |          | 21:05 |      |      |
+   | \_      Compression                             |            |          |       | 0:37 |      |
+   | \_      Graphing                                |            |          |       | 3:37 |      |
+   | \_      Settings                                |            |          |       | 3:41 |      |
+   | \_        Period for chart                      |            |          |       |      | 3:41 |
+   | \_    Client [1/1]                              |            |          |  3:48 |      |      |
+   | \_      Offline buffering                       |            |          |       | 1:33 |      |
    #+END:
 ** Components [2/5]
    :PROPERTIES:
@@ -65,6 +66,12 @@
     *sigh* I'm going to use SQLite. There is no reason /not/ to use it,
     really.
 *** TODO [#F] mDNS [0/0]
+    :LOGBOOK:
+    CLOCK: [2023-06-09 Fr 17:15]--[2023-06-09 Fr 19:00] =>  1:45
+    CLOCK: [2023-06-09 Fr 14:28]--[2023-06-09 Fr 14:55] =>  0:27
+    CLOCK: [2023-06-09 Fr 10:23]--[2023-06-09 Fr 12:05] =>  1:42
+    CLOCK: [2023-06-07 Mi 16:37]--[2023-06-07 Mi 22:57] =>  6:20
+    :END:
     I want to use mDNS - if possible - to announce and find the server.
 *** Server [3/4]                                                        :web:
     :PROPERTIES:
