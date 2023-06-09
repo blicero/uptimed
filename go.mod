@@ -6,6 +6,7 @@ require (
 	github.com/CAFxX/httpcompression v0.0.8
 	github.com/blicero/krylib v0.0.0-20230308180103-2ef208d8985d
 	github.com/gorilla/mux v1.8.0
+	github.com/grandcat/zeroconf v1.0.0
 	github.com/hashicorp/logutils v1.0.0
 	github.com/mattn/go-sqlite3 v1.14.17
 	github.com/odeke-em/go-uuid v0.0.0-20151221120446-b211d769a9aa
@@ -15,9 +16,9 @@ require (
 
 require (
 	github.com/andybalholm/brotli v1.0.4 // indirect
+	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
-	github.com/hashicorp/mdns v1.0.5 // indirect
 	github.com/klauspost/compress v1.14.1 // indirect
 	github.com/miekg/dns v1.1.41 // indirect
 	github.com/stretchr/testify v1.8.4 // indirect
