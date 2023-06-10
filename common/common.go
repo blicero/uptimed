@@ -2,7 +2,7 @@
 // -*- coding: utf-8; mode: go; -*-
 // Created on 23. 12. 2015 by Benjamin Walkenhorst
 // (c) 2015 Benjamin Walkenhorst
-// Time-stamp: <2023-06-09 19:20:37 krylon>
+// Time-stamp: <2023-06-09 20:33:49 krylon>
 
 // Package common provides constants, variables and functions used
 // throughout the application.
@@ -45,6 +45,7 @@ const (
 	TimestampFormatDate      = "2006-01-02"
 	HeartBeat                = time.Millisecond * 500
 	RCTimeout                = time.Millisecond * 10
+	Interval                 = time.Second * 120
 )
 
 // LogLevels are the names of the log levels supported by the logger.

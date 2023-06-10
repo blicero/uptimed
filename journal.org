@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2023-06-09 19:00:52 krylon>
+# Time-stamp: <2023-06-10 21:27:44 krylon>
 #
 #+TAGS: optimize(o) refactor(r) bug(b) feature(f) architecture(a)
 #+TAGS: web(w) database(d) javascript(j) ui(u)
@@ -13,17 +13,17 @@
   several systems and watch the recorded data in a web interface.
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 20
-   #+CAPTION: Clock summary at [2023-06-09 Fr 19:00]
+   #+CAPTION: Clock summary at [2023-06-10 Sa 09:46]
    | Headline                                        | Time       |          |       |      |      |
    |-------------------------------------------------+------------+----------+-------+------+------|
-   | *Total time*                                    | *1d 16:12* |          |       |      |      |
+   | *Total time*                                    | *1d 16:56* |          |       |      |      |
    |-------------------------------------------------+------------+----------+-------+------+------|
-   | uptimed                                         | 1d 16:12   |          |       |      |      |
-   | \_  Components [2/5]                            |            | 1d 16:12 |       |      |      |
+   | uptimed                                         | 1d 16:56   |          |       |      |      |
+   | \_  Components [2/5]                            |            | 1d 16:56 |       |      |      |
    | \_    CLI [1/1]                                 |            |          |  0:22 |      |      |
    | \_      Specify address and port in separate... |            |          |       | 0:22 |      |
    | \_    Database [0/0]                            |            |          |  4:43 |      |      |
-   | \_    mDNS [0/0]                                |            |          | 10:14 |      |      |
+   | \_    mDNS [0/0]                                |            |          | 10:58 |      |      |
    | \_    Server [3/4]                              |            |          | 21:05 |      |      |
    | \_      Compression                             |            |          |       | 0:37 |      |
    | \_      Graphing                                |            |          |       | 3:37 |      |
@@ -67,6 +67,8 @@
     really.
 *** TODO [#F] mDNS [0/0]
     :LOGBOOK:
+    CLOCK: [2023-06-10 Sa 13:05]--[2023-06-10 Sa 21:27] =>  8:22
+    CLOCK: [2023-06-09 Fr 23:11]--[2023-06-09 Fr 23:55] =>  0:44
     CLOCK: [2023-06-09 Fr 17:15]--[2023-06-09 Fr 19:00] =>  1:45
     CLOCK: [2023-06-09 Fr 14:28]--[2023-06-09 Fr 14:55] =>  0:27
     CLOCK: [2023-06-09 Fr 10:23]--[2023-06-09 Fr 12:05] =>  1:42

@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 02. 06. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-06 23:44:06 krylon>
+// Time-stamp: <2023-06-10 13:28:22 krylon>
 
 package web
 
@@ -16,6 +16,7 @@ import (
 	"io/fs"
 	"log"
 	"net/http"
+	"os"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -27,6 +28,7 @@ import (
 	"github.com/CAFxX/httpcompression"
 	"github.com/blicero/uptimed/common"
 	"github.com/blicero/uptimed/database"
+	"github.com/blicero/uptimed/dnssd"
 	"github.com/blicero/uptimed/logdomain"
 	"github.com/gorilla/mux"
 	"github.com/wcharczuk/go-chart/v2"
@@ -40,6 +42,7 @@ var assets embed.FS // nolint: unused
 // Server wraps the http server and its associated state.
 type Server struct {
 	Address   string
+	Port      int
 	web       http.Server
 	log       *log.Logger
 	router    *mux.Router
@@ -48,13 +51,16 @@ type Server struct {
 	pool      *database.Pool
 	lock      sync.RWMutex
 	period    int64
+	hosts     map[string]time.Time
+	mdns      *dnssd.Server
 }
 
 // Open creates a new Server.
-func Open(addr string) (*Server, error) {
+func Open(addr string, port int) (*Server, error) {
 	var (
 		err error
 		srv = &Server{
+			Port:   port,
 			period: 24,
 			mimeTypes: map[string]string{
 				".css":  "text/css",
@@ -68,13 +74,21 @@ func Open(addr string) (*Server, error) {
 				".json": "application/json",
 				".html": "text/html",
 			},
+			hosts: make(map[string]time.Time),
 		}
+		hostname string
 	)
 
-	if srv.log, err = common.GetLogger(logdomain.Web); err != nil {
+	if hostname, err = os.Hostname(); err != nil {
+		return nil, err
+	} else if srv.log, err = common.GetLogger(logdomain.Web); err != nil {
 		return nil, err
 	} else if srv.pool, err = database.NewPool(poolSize); err != nil {
 		srv.log.Printf("[ERROR] Cannot create DB pool: %s\n",
+			err.Error())
+		return nil, err
+	} else if srv.mdns, err = dnssd.CreateService(hostname, port); err != nil {
+		srv.log.Printf("[ERROR] Cannot register service with mDNS: %s\n",
 			err.Error())
 		return nil, err
 	}
@@ -151,6 +165,7 @@ func (srv *Server) ListenAndServe() {
 	var err error
 
 	defer srv.log.Println("[INFO] Web server is shutting down")
+	defer srv.mdns.Shutdown()
 
 	srv.log.Printf("[INFO] Web frontend is going online at %s\n", srv.Address)
 	http.Handle("/", srv.router)
@@ -515,6 +530,10 @@ func (srv *Server) handleReport(w http.ResponseWriter, r *http.Request) {
 			res.Message)
 		goto SEND_RESPONSE
 	}
+
+	srv.lock.Lock()
+	srv.hosts[rec.Hostname] = rec.Timestamp
+	srv.lock.Unlock()
 
 	db = srv.pool.Get()
 	defer srv.pool.Put(db)

@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 30. 05. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-07 09:33:03 krylon>
+// Time-stamp: <2023-06-10 13:29:33 krylon>
 
 package main
 
@@ -68,7 +68,7 @@ func main() {
 	case "server":
 		var srv *web.Server
 
-		if srv, err = web.Open(addr); err != nil {
+		if srv, err = web.Open(addr, int(port)); err != nil {
 			fmt.Fprintf(os.Stderr,
 				"Failed to instantiate web server: %s\n",
 				err.Error())

@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 31. 05. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-04 17:38:35 krylon>
+// Time-stamp: <2023-06-10 15:30:00 krylon>
 
 package client
 
@@ -34,7 +34,7 @@ func TestClientData(t *testing.T) {
 		t.SkipNow()
 	}
 
-	if record, err = tc.GetData(); err != nil {
+	if record, err = tc.getData(); err != nil {
 		t.Fatalf("Cannot acquire data: %s",
 			err.Error())
 	} else if record == nil {

@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 31. 05. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-06 18:45:59 krylon>
+// Time-stamp: <2023-06-10 22:05:52 krylon>
 
 // Package client implements the data acquisition and communication with
 // the server.
@@ -20,23 +20,24 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/blicero/uptimed/common"
+	"github.com/blicero/uptimed/dnssd"
 	"github.com/blicero/uptimed/logdomain"
-	"github.com/shirou/gopsutil/host"
-	"github.com/shirou/gopsutil/load"
 )
-
-const interval = time.Second * 120
 
 // Client contains the state for the client side, i.e. for data acquisition and
 // communication with the server.
 type Client struct {
-	srvAddr string
-	hc      http.Client
-	log     *log.Logger
-	name    string
+	srvAddr     string
+	origSrvAddr string
+	hc          http.Client
+	log         *log.Logger
+	name        string
+	res         *dnssd.Resolver
+	alive       atomic.Bool
 }
 
 const reqPath = "/ws/report"
@@ -53,6 +54,22 @@ func Create(addr string) (*Client, error) {
 		}
 	)
 
+	if c.name, err = os.Hostname(); err != nil {
+		c.log.Printf("[ERROR] Cannot query hostname: %s\n",
+			err.Error())
+		return nil, err
+	} else if i := strings.Index(c.name, "."); i != -1 {
+		c.name = c.name[:i]
+	} else if c.log, err = common.GetLogger(logdomain.Client); err != nil {
+		return nil, err
+	} else if c.res, err = dnssd.NewResolver(c.name); err != nil {
+		c.log.Printf("[ERROR] Cannot initiate DNS-SD resolver: %s\n",
+			err.Error())
+		return nil, err
+	}
+
+	go c.res.FindServer()
+
 	addrStr = fmt.Sprintf("http://%s%s",
 		addr,
 		reqPath)
@@ -62,16 +79,7 @@ func Create(addr string) (*Client, error) {
 	}
 
 	c.srvAddr = paddr.String()
-
-	if c.log, err = common.GetLogger(logdomain.Client); err != nil {
-		return nil, err
-	} else if c.name, err = os.Hostname(); err != nil {
-		c.log.Printf("[ERROR] Cannot query hostname: %s\n",
-			err.Error())
-		return nil, err
-	} else if i := strings.Index(c.name, "."); i != -1 {
-		c.name = c.name[:i]
-	}
+	c.origSrvAddr = c.srvAddr
 
 	c.log.Printf("[DEBUG] Client %s initialized\n",
 		c.name)
@@ -79,38 +87,60 @@ func Create(addr string) (*Client, error) {
 	return c, nil
 } // func Create() (*Client, error)
 
-// GetData gets the current system uptime and load average.
-func (c *Client) GetData() (*common.Record, error) {
+// Alive returns the value of the Client's alive flag
+func (c *Client) Alive() bool {
+	return c.alive.Load()
+} // func (c *Client) Alive() bool
+
+// Stop tells the Client to cease activity.
+func (c *Client) Stop() {
+	c.alive.Store(false)
+} // func (c *Client) Stop()
+
+// Loop executes the Client's main loop.
+func (c *Client) Loop() error {
 	var (
-		err        error
-		uptimeSecs uint64
-		loadavg    *load.AvgStat
-		r          = &common.Record{
-			Hostname:  c.name,
-			Timestamp: time.Now(),
-		}
+		err error
 	)
 
-	if uptimeSecs, err = host.Uptime(); err != nil {
-		c.log.Printf("[ERROR] Cannot determine uptime: %s\n",
-			err.Error())
-		return nil, err
+	c.alive.Store(true)
+
+	// ...
+	return err
+} // func (c *Client) Loop() error
+
+func (c *Client) gatherLoop() {
+	var t = time.NewTicker(common.Interval)
+	defer t.Stop()
+
+	for c.Alive() {
+		_ = <-t.C
+
+		var (
+			err error
+			rec *common.Record
+			buf []byte
+		)
+
+		if rec, err = c.getData(); err != nil {
+			c.log.Printf("[ERROR] Cannot acquire data: %s\n", err.Error())
+		} else if buf, err = json.Marshal(&rec); err != nil {
+			c.log.Printf("[ERROR] Cannot serialize data: %s\n", err.Error())
+		} else if err = c.saveBuffer(buf); err != nil {
+			c.log.Printf("[ERROR] Cannot save data: %s\n", err.Error())
+		}
 	}
+} // func (c *Client) gatherLoop()
 
-	r.Uptime = time.Second * time.Duration(uptimeSecs)
+func (c *Client) transmitLoop() {
+	var t = time.NewTicker(common.Interval)
+	defer t.Stop()
 
-	if loadavg, err = load.Avg(); err != nil {
-		c.log.Printf("[ERROR] Cannot query system load: %s\n",
-			err.Error())
-		return nil, err
+	for c.Alive() {
+		_ = <-t.C
+
 	}
-
-	r.Load[0] = loadavg.Load1
-	r.Load[1] = loadavg.Load5
-	r.Load[2] = loadavg.Load15
-
-	return r, nil
-} // func (c *Client) GetData() (*common.Record, error)
+} // func (c *Client) transmitLoop()
 
 // Run executes the Client's main loop.
 func (c *Client) Run() error {
@@ -121,25 +151,43 @@ func (c *Client) Run() error {
 			buf  []byte
 		)
 
-		c.processBuffered()
-
-		if data, err = c.GetData(); err != nil {
+		if data, err = c.getData(); err != nil {
 			c.log.Printf("[ERROR] Cannot acquire data: %s\n", err.Error())
 			goto NEXT
 		} else if buf, err = json.Marshal(data); err != nil {
 			c.log.Printf("[ERROR] Cannot serialize data: %s\n", err.Error())
 			goto NEXT
-		} else if err = c.transmitData(buf); err != nil {
+		}
+
+		if c.srvAddr == "" {
+			c.log.Println("[INFO] Attempt to find server via mDNS")
+			// Can we find one via mDNS?
+			var servers = c.res.GetVisibleServers()
+			if len(servers) > 0 {
+				c.log.Printf("[INFO] Attempt to talk to %s\n",
+					err.Error())
+				c.srvAddr = servers[0]
+			} else if err = c.saveBuffer(buf); err != nil {
+				c.log.Printf("[ERROR] Cannot save data: %s\n", err.Error())
+				goto NEXT
+			}
+
+		}
+
+		if err = c.transmitData(buf); err != nil {
+			c.srvAddr = ""
 			c.log.Printf("[ERROR] Cannot send data to server: %s\n",
 				err.Error())
 			c.saveBuffer(buf) // nolint: errcheck
+			goto NEXT
 		}
 
+		c.processBuffered()
 		c.log.Printf("[INFO] Report sent to Server %s\n",
 			c.srvAddr)
 
 	NEXT:
-		time.Sleep(interval)
+		time.Sleep(common.Interval)
 	}
 } // func (c *Client) Run() error
 
@@ -202,7 +250,9 @@ func (c *Client) sendBufferedData(path string, wg *sync.WaitGroup) {
 		buf bytes.Buffer
 	)
 
-	defer wg.Done()
+	if wg != nil {
+		defer wg.Done()
+	}
 
 	if fh, err = os.Open(path); err != nil {
 		c.log.Printf("[ERROR] Cannot open %s: %s\n",
@@ -244,12 +294,12 @@ func (c *Client) processBuffered() {
 		return
 	}
 
-	var wg sync.WaitGroup
+	// var wg sync.WaitGroup
 
 	for _, path := range files {
-		wg.Add(1)
-		go c.sendBufferedData(path, &wg)
+		//wg.Add(1)
+		c.sendBufferedData(path, nil)
 	}
 
-	wg.Wait()
+	// wg.Wait()
 } // func (c *Client) processBuffered()

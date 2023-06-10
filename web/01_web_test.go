@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 03. 06. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-03 16:45:18 krylon>
+// Time-stamp: <2023-06-10 13:29:14 krylon>
 
 package web
 
@@ -21,7 +21,7 @@ var (
 func TestOpen(t *testing.T) {
 	var err error
 
-	if srv, err = Open(addr); err != nil {
+	if srv, err = Open(addr, int(common.WebPort)+2); err != nil {
 		srv = nil
 		t.Fatalf("Error creating web server: %s",
 			err.Error())

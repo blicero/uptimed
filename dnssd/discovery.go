@@ -2,12 +2,13 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 06. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-09 18:56:18 krylon>
+// Time-stamp: <2023-06-10 13:12:42 krylon>
 
 package dnssd
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"sync"
 	"sync/atomic"
@@ -92,6 +93,19 @@ func (r *Resolver) FindServer() {
 
 	}
 } // func (r *Resolver) FindServer() ([]string, error)
+
+func (r *Resolver) GetVisibleServers() []string {
+	var res = make([]string, 0)
+	r.pLock.RLock()
+	for _, s := range r.servers {
+		var addr = fmt.Sprintf("[%s]:%d",
+			s.rr.HostName,
+			s.rr.Port)
+		res = append(res, addr)
+	}
+	r.pLock.RUnlock()
+	return res
+} // func (r *Resolver) GetVisibleServers() []string
 
 func (r *Resolver) processServiceEntries(queue <-chan *zeroconf.ServiceEntry) {
 	r.log.Println("[DEBUG] Waiting for records from mdns")
