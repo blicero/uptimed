@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2023-06-10 21:27:44 krylon>
+# Time-stamp: <2023-06-12 17:34:54 krylon>
 #
 #+TAGS: optimize(o) refactor(r) bug(b) feature(f) architecture(a)
 #+TAGS: web(w) database(d) javascript(j) ui(u)
@@ -13,24 +13,24 @@
   several systems and watch the recorded data in a web interface.
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 20
-   #+CAPTION: Clock summary at [2023-06-10 Sa 09:46]
-   | Headline                                        | Time       |          |       |      |      |
-   |-------------------------------------------------+------------+----------+-------+------+------|
-   | *Total time*                                    | *1d 16:56* |          |       |      |      |
-   |-------------------------------------------------+------------+----------+-------+------+------|
-   | uptimed                                         | 1d 16:56   |          |       |      |      |
-   | \_  Components [2/5]                            |            | 1d 16:56 |       |      |      |
-   | \_    CLI [1/1]                                 |            |          |  0:22 |      |      |
-   | \_      Specify address and port in separate... |            |          |       | 0:22 |      |
-   | \_    Database [0/0]                            |            |          |  4:43 |      |      |
-   | \_    mDNS [0/0]                                |            |          | 10:58 |      |      |
-   | \_    Server [3/4]                              |            |          | 21:05 |      |      |
-   | \_      Compression                             |            |          |       | 0:37 |      |
-   | \_      Graphing                                |            |          |       | 3:37 |      |
-   | \_      Settings                                |            |          |       | 3:41 |      |
-   | \_        Period for chart                      |            |          |       |      | 3:41 |
-   | \_    Client [1/1]                              |            |          |  3:48 |      |      |
-   | \_      Offline buffering                       |            |          |       | 1:33 |      |
+   #+CAPTION: Clock summary at [2023-06-12 Mo 17:34]
+   | Headline                                        | Time      |         |       |      |      |
+   |-------------------------------------------------+-----------+---------+-------+------+------|
+   | *Total time*                                    | *2d 2:50* |         |       |      |      |
+   |-------------------------------------------------+-----------+---------+-------+------+------|
+   | uptimed                                         | 2d 2:50   |         |       |      |      |
+   | \_  Components [2/5]                            |           | 2d 2:50 |       |      |      |
+   | \_    CLI [1/1]                                 |           |         |  0:22 |      |      |
+   | \_      Specify address and port in separate... |           |         |       | 0:22 |      |
+   | \_    Database [0/0]                            |           |         |  4:43 |      |      |
+   | \_    mDNS [0/0]                                |           |         | 19:20 |      |      |
+   | \_    Server [3/4]                              |           |         | 21:05 |      |      |
+   | \_      Compression                             |           |         |       | 0:37 |      |
+   | \_      Graphing                                |           |         |       | 3:37 |      |
+   | \_      Settings                                |           |         |       | 3:41 |      |
+   | \_        Period for chart                      |           |         |       |      | 3:41 |
+   | \_    Client [1/1]                              |           |         |  5:20 |      |      |
+   | \_      Offline buffering                       |           |         |       | 1:33 |      |
    #+END:
 ** Components [2/5]
    :PROPERTIES:
@@ -132,6 +132,8 @@
     :VISIBILITY: children
     :END:
     :LOGBOOK:
+    CLOCK: [2023-06-12 Mo 16:48]--[2023-06-12 Mo 17:34] =>  0:46
+    CLOCK: [2023-06-12 Mo 08:49]--[2023-06-12 Mo 09:35] =>  0:46
     CLOCK: [2023-06-04 So 17:21]--[2023-06-04 So 19:36] =>  2:15
     :END:
     The client should be relatively straightforward, I think. I'm going to
@@ -139,6 +141,7 @@
 **** DONE Offline buffering
      CLOSED: [2023-06-06 Di 18:51]
      :LOGBOOK:
+     CLOCK: [2023-06-11 So 20:17]--[2023-06-11 So 20:17] =>  0:00
      CLOCK: [2023-06-06 Di 18:43]--[2023-06-06 Di 18:51] =>  0:08
      CLOCK: [2023-06-06 Di 18:00]--[2023-06-06 Di 18:43] =>  0:43
      CLOCK: [2023-06-06 Di 17:10]--[2023-06-06 Di 17:52] =>  0:42
