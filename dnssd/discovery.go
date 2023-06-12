@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 06. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-12 17:29:19 krylon>
+// Time-stamp: <2023-06-12 18:08:13 krylon>
 
 package dnssd
 

@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 31. 05. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-12 17:32:05 krylon>
+// Time-stamp: <2023-06-12 23:13:38 krylon>
 
 // Package client implements the data acquisition and communication with
 // the server.
@@ -11,6 +11,7 @@ package client
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -42,7 +43,7 @@ type Client struct {
 const reqPath = "/ws/report"
 
 // Create creates a new Client.
-func Create(addr string) (*Client, error) {
+func Create(addr string, mdns bool) (*Client, error) {
 	var (
 		err     error
 		addrStr string
@@ -54,20 +55,38 @@ func Create(addr string) (*Client, error) {
 	)
 
 	if c.name, err = os.Hostname(); err != nil {
-		c.log.Printf("[ERROR] Cannot query hostname: %s\n",
+		fmt.Printf("[ERROR] Cannot query hostname: %s\n",
 			err.Error())
 		return nil, err
 	} else if i := strings.Index(c.name, "."); i != -1 {
 		c.name = c.name[:i]
 	} else if c.log, err = common.GetLogger(logdomain.Client); err != nil {
 		return nil, err
-	} else if c.res, err = dnssd.NewResolver(c.name); err != nil {
-		c.log.Printf("[ERROR] Cannot initiate DNS-SD resolver: %s\n",
-			err.Error())
-		return nil, err
 	}
 
-	// go c.res.FindServer()
+	if c.log == nil {
+		if c.log, err = common.GetLogger(logdomain.Client); err != nil {
+			fmt.Printf("On second attempt, common.GetLogger returned an error: %s\n",
+				err.Error())
+			return nil, err
+		} else if c.log == nil {
+			fmt.Printf("Logger is nil! Why?\n")
+			return nil, errors.New("logger is nil")
+		}
+	}
+
+	if mdns {
+		c.log.Println("[DEBUG] Start mDNS service discovery")
+		if c.res, err = dnssd.NewResolver(c.name); err != nil {
+			c.log.Printf("[ERROR] Cannot initiate DNS-SD resolver: %s\n",
+				err.Error())
+			return nil, err
+		}
+
+		go c.res.FindServer()
+	} else {
+		c.log.Println("[DEBUG] Disabling mDNS service discovery")
+	}
 
 	addrStr = fmt.Sprintf("http://%s%s",
 		addr,
@@ -108,6 +127,9 @@ func (c *Client) gatherLoop() {
 	var t = time.NewTicker(common.Interval)
 	defer t.Stop()
 
+	c.log.Printf("[TRACE] Start gathering data on %s\n",
+		c.name)
+
 	for c.Alive() {
 		<-t.C
 
@@ -116,6 +138,8 @@ func (c *Client) gatherLoop() {
 			rec *common.Record
 			buf []byte
 		)
+
+		c.log.Println("[TRACE] Gathering data")
 
 		if rec, err = c.getData(); err != nil {
 			c.log.Printf("[ERROR] Cannot acquire data: %s\n", err.Error())
@@ -131,6 +155,9 @@ func (c *Client) transmitLoop() {
 	var t = time.NewTicker(common.Interval)
 	defer t.Stop()
 
+	c.log.Printf("[TRACE] Start transmitting buffered data on %s\n",
+		c.name)
+
 	for c.Alive() {
 		var (
 			err   error
@@ -139,6 +166,9 @@ func (c *Client) transmitLoop() {
 		)
 
 		<-t.C
+
+		c.log.Printf("[TRACE] Transmitting buffered data to %s\n",
+			c.srvAddr)
 
 		glob = filepath.Join(common.BufferPath, "*.json")
 
@@ -166,6 +196,8 @@ func (c *Client) transmitLoop() {
 				c.log.Printf("[ERROR] Cannot remove %s: %s\n",
 					f,
 					err.Error())
+			} else {
+				c.log.Printf("[TRACE] Processed %s\n", f)
 			}
 		}
 	}

@@ -2,7 +2,7 @@
 // -*- coding: utf-8; mode: go; -*-
 // Created on 23. 12. 2015 by Benjamin Walkenhorst
 // (c) 2015 Benjamin Walkenhorst
-// Time-stamp: <2023-06-09 20:33:49 krylon>
+// Time-stamp: <2023-06-12 20:47:05 krylon>
 
 // Package common provides constants, variables and functions used
 // throughout the application.
@@ -37,7 +37,7 @@ import (
 // their status.
 const (
 	Debug                    = true
-	Version                  = "0.1.0"
+	Version                  = "0.2.0"
 	AppName                  = "uptimed"
 	TimestampFormat          = "2006-01-02 15:04:05"
 	TimestampFormatMinute    = "2006-01-02 15:04"
@@ -112,15 +112,20 @@ func SetBaseDir(path string) error {
 // GetLogger Tries to create a named logger instance and return it.
 // If the directory to hold the log file does not exist, try to create it.
 func GetLogger(dom logdomain.ID) (*log.Logger, error) {
-	var err error
-	err = InitApp()
-	if err != nil {
+	var (
+		err     error
+		logName string
+	)
+
+	if err = InitApp(); err != nil {
 		return nil, fmt.Errorf("Error initializing application environment: %s", err.Error())
 	}
 
-	logName := fmt.Sprintf("%s.%s",
+	logName = fmt.Sprintf("%s.%s",
 		AppName,
 		dom)
+
+	fmt.Printf("Creating Logger for %s\n", dom)
 
 	var logfile *os.File
 	logfile, err = os.OpenFile(LogPath, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0644)
@@ -130,9 +135,21 @@ func GetLogger(dom logdomain.ID) (*log.Logger, error) {
 		return nil, errors.New(msg)
 	}
 
-	writer := io.MultiWriter(os.Stdout, logfile)
+	filter := &logutils.LevelFilter{
+		Levels:   LogLevels,
+		MinLevel: MinLogLevel,
+		Writer:   io.MultiWriter(os.Stdout, logfile),
+	}
 
-	logger := log.New(writer, logName, log.Ldate|log.Ltime|log.Lshortfile)
+	logger := log.New(filter, logName, log.Ldate|log.Ltime|log.Lshortfile)
+
+	if logger == nil {
+		fmt.Fprintf(
+			os.Stderr,
+			"log.New returned nil! Why?\n",
+		)
+	}
+
 	return logger, nil
 } // func GetLogger(name string) (*log.logger, error)
 

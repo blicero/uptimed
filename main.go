@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 30. 05. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-12 16:55:38 krylon>
+// Time-stamp: <2023-06-12 18:42:56 krylon>
 
 package main
 
@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"runtime"
 	"syscall"
 
 	"github.com/blicero/uptimed/client"
@@ -30,11 +31,20 @@ func main() {
 		err        error
 		mode, addr string
 		port       int64
+		mdns       bool
 	)
+
+	switch runtime.GOOS {
+	case "freebsd", "openbsd":
+		mdns = false
+	default:
+		mdns = true
+	}
 
 	flag.StringVar(&mode, "mode", "client", "Tells if we are a client or a server")
 	flag.StringVar(&addr, "addr", defaultAddr, "The network address to listen on (server) or report to (client)")
 	flag.Int64Var(&port, "port", common.WebPort, "The TCP port for the HTTP server to listen on")
+	flag.BoolVar(&mdns, "mdns", mdns, "Use mDNS for server discovery")
 
 	flag.Parse()
 
@@ -57,7 +67,7 @@ func main() {
 		// Do something!
 		var c *client.Client
 
-		if c, err = client.Create(addr); err != nil {
+		if c, err = client.Create(addr, mdns); err != nil {
 			fmt.Fprintf(os.Stderr,
 				"Failed to create client: %s\n",
 				err.Error())
