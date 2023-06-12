@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 31. 05. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-12 17:28:16 krylon>
+// Time-stamp: <2023-06-12 17:32:05 krylon>
 
 // Package client implements the data acquisition and communication with
 // the server.
@@ -162,60 +162,14 @@ func (c *Client) transmitLoop() {
 					c.srvAddr,
 					err.Error())
 				continue
+			} else if err = os.RemoveAll(f); err != nil {
+				c.log.Printf("[ERROR] Cannot remove %s: %s\n",
+					f,
+					err.Error())
 			}
 		}
 	}
 } // func (c *Client) transmitLoop()
-
-// Run executes the Client's main loop.
-// func (c *Client) Run() error {
-// 	for {
-// 		var (
-// 			err  error
-// 			data *common.Record
-// 			buf  []byte
-// 		)
-
-// 		if data, err = c.getData(); err != nil {
-// 			c.log.Printf("[ERROR] Cannot acquire data: %s\n", err.Error())
-// 			goto NEXT
-// 		} else if buf, err = json.Marshal(data); err != nil {
-// 			c.log.Printf("[ERROR] Cannot serialize data: %s\n", err.Error())
-// 			goto NEXT
-// 		}
-
-// 		if c.srvAddr == "" {
-// 			c.log.Println("[INFO] Attempt to find server via mDNS")
-// 			// Can we find one via mDNS?
-// 			var servers = c.res.GetVisibleServers()
-// 			if len(servers) > 0 {
-// 				c.log.Printf("[INFO] Attempt to talk to %s\n",
-// 					err.Error())
-// 				c.srvAddr = servers[0]
-// 			} else if err = c.saveBuffer(buf); err != nil {
-// 				c.log.Printf("[ERROR] Cannot save data: %s\n", err.Error())
-// 				goto NEXT
-// 			}
-
-// 		}
-
-// 		if err = c.transmitData(buf); err != nil {
-// 			c.srvAddr = ""
-// 			c.log.Printf("[ERROR] Cannot send data to server: %s\n",
-// 				err.Error())
-// 			c.saveBuffer(buf) // nolint: errcheck
-// 			goto NEXT
-// 		}
-
-// 		c.processBuffered()
-// 		c.log.Printf("[INFO] Report sent to Server %s\n",
-// 			c.srvAddr)
-
-// 	NEXT:
-// 		time.Sleep(common.Interval)
-// 	}
-// }
-// func (c *Client) Run() error
 
 func (c *Client) transmitData(buf []byte) error {
 	var (
@@ -268,58 +222,6 @@ func (c *Client) saveBuffer(buf []byte) error {
 
 	return nil
 } // func (c *Client) saveBuffer(buf []byte) error
-
-// func (c *Client) sendBufferedData(path string) {
-// 	var (
-// 		err error
-// 		fh  *os.File
-// 		buf bytes.Buffer
-// 	)
-
-// 	if fh, err = os.Open(path); err != nil {
-// 		c.log.Printf("[ERROR] Cannot open %s: %s\n",
-// 			path,
-// 			err.Error())
-// 		return
-// 	}
-
-// 	defer fh.Close() // nolint: errcheck
-
-// 	if _, err = io.Copy(&buf, fh); err != nil {
-// 		c.log.Printf("[ERROR] Failed to read contents of %s: %s\n",
-// 			path,
-// 			err.Error())
-// 		return
-// 	} else if err = c.transmitData(buf.Bytes()); err != nil {
-// 		c.log.Printf("[ERROR] Failed to transmit contents of %s to server: %s\n",
-// 			path,
-// 			err.Error())
-// 		return
-// 	}
-
-// 	os.RemoveAll(path) // nolint: errcheck
-// } // func (c *Client) sendBufferedData(path string)
-
-// func (c *Client) processBuffered() {
-// 	var (
-// 		err   error
-// 		files []string
-// 		glob  = filepath.Join(common.BufferPath, "*.json")
-// 	)
-
-// 	if files, err = filepath.Glob(glob); err != nil {
-// 		c.log.Printf("[ERROR] Cannot read filenames from %s: %s\n",
-// 			common.BufferPath,
-// 			err.Error())
-// 		return
-// 	} else if len(files) == 0 {
-// 		return
-// 	}
-
-// 	for _, path := range files {
-// 		c.sendBufferedData(path)
-// 	}
-// } // func (c *Client) processBuffered()
 
 func (c *Client) slurp(path string) ([]byte, error) {
 	var (
