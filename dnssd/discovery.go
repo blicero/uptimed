@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 06. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-10 13:12:42 krylon>
+// Time-stamp: <2023-06-12 17:29:19 krylon>
 
 package dnssd
 
@@ -48,8 +48,6 @@ func NewResolver(hostname string) (*Resolver, error) {
 		return nil, err
 	}
 
-	r.alive.Store(true)
-
 	return r, nil
 } // func NewResolver() (*Resolver, error)
 
@@ -65,6 +63,7 @@ func (r *Resolver) Alive() bool {
 
 // FindServer starts the Resolver's discovery process.
 func (r *Resolver) FindServer() {
+	r.alive.Store(true)
 	go r.purgeLoop()
 
 	for r.Alive() {
@@ -89,8 +88,8 @@ func (r *Resolver) FindServer() {
 
 		time.Sleep(time.Second * srvTTL)
 		cancel()
-		close(entries)
-
+		// close(entries)
+		<-ctx.Done()
 	}
 } // func (r *Resolver) FindServer() ([]string, error)
 
@@ -125,6 +124,8 @@ func (r *Resolver) processServiceEntries(queue <-chan *zeroconf.ServiceEntry) {
 		r.servers[str] = mkService(entry)
 		r.pLock.Unlock()
 	}
+
+	r.log.Printf("[DEBUG] Done processing records\n")
 } // func (d *Daemon) processServiceEntries(queue <- chan *zeroconf.ServiceEntry)
 
 func (r *Resolver) purgeLoop() {

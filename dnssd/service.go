@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 08. 06. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-09 18:49:45 krylon>
+// Time-stamp: <2023-06-12 17:03:41 krylon>
 
 package dnssd
 
@@ -20,7 +20,7 @@ const (
 	srvName    = "uptimed"
 	srvService = "_http._tcp"
 	srvDomain  = "local."
-	srvTTL     = 5
+	srvTTL     = 90
 )
 
 // Server is a type.

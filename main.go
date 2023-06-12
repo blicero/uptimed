@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 30. 05. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-10 13:29:33 krylon>
+// Time-stamp: <2023-06-12 16:55:38 krylon>
 
 package main
 
@@ -64,7 +64,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		go c.Run()
+		c.Loop()
 	case "server":
 		var srv *web.Server
 
