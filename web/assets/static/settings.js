@@ -1,4 +1,4 @@
-// Time-stamp: <2023-06-06 20:04:16 krylon>
+// Time-stamp: <2023-06-13 11:32:02 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2020 Benjamin Walkenhorst <krylon@gmx.net>
 
@@ -61,3 +61,9 @@ function saveSetting(category, attribute, newValue) {
     settings[category][attribute] = newValue;
 } // function saveSetting(group, member, newValue)
 
+// const save_period = () => {
+//     const hstr = $("#period")[0].value
+//     const hours = Number.parseInt(hstr)
+
+//     saveSetting("chart", "period", hours * 3600)
+// }

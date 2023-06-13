@@ -1,6 +1,6 @@
 {{ define "prefs" }}
 {{/* Created on 06. 06. 2023 */}}
-{{/* Time-stamp: <2023-06-06 23:08:23 krylon> */}}
+{{/* Time-stamp: <2023-06-13 18:03:13 krylon> */}}
 <!DOCTYPE html>
 <html>
   {{ template "head" . }}
@@ -10,23 +10,26 @@
 
     <h2>Preferences</h2>
 
-    <form action="/prefs" method="post">
-    <table class="table">
-      <tr>
-        <th>Reporting period</th>
-        <td>
-          <input id="period" type="number" name="period" min="0" max="672" value="{{ .Period }}" />
-        </td>
-      </tr>
+      <script>
+       $(document).ready(() => {
+         $("#period")[0].value = settings.chart.period / 3600
+       })
+      </script>
+      <table class="table">
+        <tr>
+          <th>Reporting period</th>
+          <td>
+            <input id="period" type="number" name="period" min="0" max="672" value="{{ .Period }}" />
+          </td>
+        </tr>
 
-      <tr>
-        <th></th>
-        <td>
-          <input type="submit" value="Save" />
-        </td>
-      </tr>
-    </table>
-    </form>
+        <tr>
+          <th></th>
+          <td>
+            <input type="submit" value="Save" onclick="update_period()" />
+          </td>
+        </tr>
+      </table>
 
     {{ template "footer" . }}
   </body>

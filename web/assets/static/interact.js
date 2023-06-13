@@ -1,4 +1,4 @@
-// Time-stamp: <2023-06-06 21:04:56 krylon>
+// Time-stamp: <2023-06-13 18:04:53 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -1172,11 +1172,28 @@ function page_frame_resize () {
 } // function page_frame_resize ()
 
 function update_period() {
-    const hourPicker = $("#hours")[0]
-
+    const hourPicker = $("#period")[0]
     const hours = hourPicker.valueAsNumber
-
     const seconds = hours * 3600
 
+    const url = `/ajax/set_period/${hours}`
+
     saveSetting("chart", "period", seconds)
+
+    let res = $.get(url,
+          {},
+          (reply) => {
+              if (!reply.Status) {
+                  const msg = `Error saving settings: ${reply.Message}`
+                  console.error(msg)
+                  alert(msg)
+              } else {
+                  hourPicker.value = hours
+              }
+          },
+          'json')
+
+    res.fail = (rep, stat, xhr) => {
+        console.error(`Error saving preferences: ${rep} / ${stat}`)
+    }
 } // function update_period()

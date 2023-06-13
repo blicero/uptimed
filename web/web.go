@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 02. 06. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-10 13:28:22 krylon>
+// Time-stamp: <2023-06-13 17:56:18 krylon>
 
 package web
 
@@ -151,6 +151,7 @@ func Open(addr string, port int) (*Server, error) {
 
 	srv.router.HandleFunc("/ws/report", srv.handleReport)
 	srv.router.HandleFunc("/ajax/beacon", srv.handleBeacon)
+	srv.router.HandleFunc("/ajax/set_period/{hours:(?:\\d+)$}", srv.handleSetPeriod)
 
 	srv.router.HandleFunc("/favicon.ico", srv.handleFavIco)
 	srv.router.HandleFunc("/static/{file}", srv.handleStaticFile)
@@ -323,9 +324,23 @@ func (srv *Server) handleChart(w http.ResponseWriter, r *http.Request) {
 		}
 	)
 
-	srv.lock.RLock()
-	hours = srv.period
-	srv.lock.RUnlock()
+	if err = r.ParseForm(); err != nil {
+		srv.log.Printf("[ERROR] Cannot parse form data: %s\n", err.Error())
+	} else {
+		var hstr = r.FormValue("hours")
+		if hours, err = strconv.ParseInt(hstr, 10, 64); err != nil {
+			hours = 0
+			srv.log.Printf("[ERROR] Cannot parse duration %q: %s\n",
+				hstr,
+				err.Error())
+		}
+	}
+
+	if hours == 0 {
+		srv.lock.RLock()
+		hours = srv.period
+		srv.lock.RUnlock()
+	}
 
 	yesterday = time.Now().Add(time.Hour * time.Duration(hours) * -1)
 
@@ -491,7 +506,45 @@ func (srv *Server) handleBeacon(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "no-store, max-age=0")
 	w.WriteHeader(200)
 	w.Write(response) // nolint: errcheck,gosec
-} // func (srv *Web) handleBeacon(w http.ResponseWriter, r *http.Request)
+} // func (srv *Server) handleBeacon(w http.ResponseWriter, r *http.Request)
+
+func (srv *Server) handleSetPeriod(w http.ResponseWriter, r *http.Request) {
+	srv.log.Printf("[TRACE] Handle request for %s from %s\n",
+		r.URL.EscapedPath(),
+		r.RemoteAddr)
+
+	var (
+		err    error
+		pstr   string
+		hours  int64
+		status bool
+	)
+
+	vars := mux.Vars(r)
+	pstr = vars["hours"]
+
+	if hours, err = strconv.ParseInt(pstr, 10, 64); err != nil {
+		srv.log.Printf("[ERROR] Cannot parse new period %q: %s\n",
+			pstr,
+			err.Error())
+	} else {
+		srv.lock.Lock()
+		srv.period = hours
+		srv.lock.Unlock()
+		status = true
+	}
+
+	var response = fmt.Sprintf(`{"Status": %t, "Message": "Yup"}`, status)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", "no-store, max-age=0")
+	if status {
+		w.WriteHeader(200)
+	} else {
+		w.WriteHeader(500)
+	}
+	w.Write([]byte(response)) // nolint: errcheck
+} // func (srv *Server) handleSetPeriod(w http.ResponseWriter, r *http.Request)
 
 //////////////////////////////////////////////////////
 // Interaction with Clients //////////////////////////
