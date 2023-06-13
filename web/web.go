@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 02. 06. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-13 17:56:18 krylon>
+// Time-stamp: <2023-06-13 19:51:50 krylon>
 
 package web
 
@@ -152,6 +152,7 @@ func Open(addr string, port int) (*Server, error) {
 	srv.router.HandleFunc("/ws/report", srv.handleReport)
 	srv.router.HandleFunc("/ajax/beacon", srv.handleBeacon)
 	srv.router.HandleFunc("/ajax/set_period/{hours:(?:\\d+)$}", srv.handleSetPeriod)
+	srv.router.HandleFunc("/ajax/get_recent", srv.handleGetRecords)
 
 	srv.router.HandleFunc("/favicon.ico", srv.handleFavIco)
 	srv.router.HandleFunc("/static/{file}", srv.handleStaticFile)
@@ -545,6 +546,57 @@ func (srv *Server) handleSetPeriod(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Write([]byte(response)) // nolint: errcheck
 } // func (srv *Server) handleSetPeriod(w http.ResponseWriter, r *http.Request)
+
+func (srv *Server) handleGetRecords(w http.ResponseWriter, r *http.Request) {
+	srv.log.Printf("[TRACE] Handle request for %s from %s\n",
+		r.URL.EscapedPath(),
+		r.RemoteAddr)
+
+	var (
+		err     error
+		db      *database.Database
+		res     responseRecords
+		records []common.Record
+		buf     []byte
+		msg     string
+	)
+
+	db = srv.pool.Get()
+	defer srv.pool.Put(db)
+
+	if records, err = db.RecentGetAll(); err != nil {
+		srv.log.Printf("[ERROR] Cannot query database for recent submissions: %s\n",
+			err.Error())
+		res.Message = err.Error()
+		goto SEND_RESPONSE
+	}
+
+	res.Records = make(map[string]common.Record, len(records))
+
+	for _, r := range records {
+		res.Records[r.Hostname] = r
+	}
+
+	res.Status = true
+	res.Message = "Whatever"
+
+SEND_RESPONSE:
+	res.Timestamp = time.Now()
+	if buf, err = json.Marshal(&res); err != nil {
+		srv.log.Printf("[ERROR] Error serializing response: %s\n",
+			err.Error())
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", "no-store, max-age=0")
+	w.WriteHeader(200)
+	if _, err = w.Write(buf); err != nil {
+		msg = fmt.Sprintf("Failed to send result: %s",
+			err.Error())
+		srv.log.Println("[ERROR] " + msg)
+	}
+} // func (srv *Server) handleGetRecords(w http.ResponseWriter, r *http.Request)
 
 //////////////////////////////////////////////////////
 // Interaction with Clients //////////////////////////

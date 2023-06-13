@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 31. 05. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-02 10:21:56 krylon>
+// Time-stamp: <2023-06-13 19:18:27 krylon>
 
 package common
 
@@ -31,6 +31,11 @@ type Record struct {
 	Uptime    time.Duration
 	Load      [3]float64
 }
+
+// Recent returns true of the Record was submitted recently (now - interval * 2)
+func (r *Record) Recent() bool {
+	return time.Since(r.Timestamp) < Interval*2
+} // func (r *Record) Recent() bool
 
 func (r *Record) String() string {
 	return fmt.Sprintf("Record{ Hostname: %q, Timestamp: %s, Uptime: %s, Load: { %.1f, %.1f, %.1f } }",

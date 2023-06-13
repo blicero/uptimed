@@ -1,4 +1,4 @@
-// Time-stamp: <2023-06-13 18:04:53 krylon>
+// Time-stamp: <2023-06-13 21:39:46 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -1197,3 +1197,40 @@ function update_period() {
         console.error(`Error saving preferences: ${rep} / ${stat}`)
     }
 } // function update_period()
+
+function refresh_table(records) {
+    const tbl = $("#records")[0]
+    const ts2 = Date.now()
+
+
+    for (const row of tbl.children) {
+         const name = row.children[0].innerText
+
+         if (name in records) {
+            const rec = records[name]
+             row.children[2].innerText = fmtDuration((rec.Uptime/1e9).toFixed())
+             const ts1 = Date.parse(rec.Timestamp)
+
+             if ((ts2 - ts1) / 1000 <= 600) {
+
+             }
+        }
+    }
+} // function refresh_table(records)
+
+
+
+function refresh_records() {
+    const endpoint = "/ajax/get_recent"
+    try {
+    $.get(endpoint,
+          (reply) => {
+              if (reply.status) {
+                  refresh_table(reply.records)
+              }
+          },
+          'json')
+    } finally {
+        window.setTimeout(refresh_records, settings.messages.interval)
+    }
+} // function refresh_records()

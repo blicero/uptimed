@@ -1,6 +1,6 @@
 {{ define "records" }}
 {{/* Created on 05. 06. 2023 */}}
-{{/* Time-stamp: <2023-06-06 18:55:50 krylon> */}}
+{{/* Time-stamp: <2023-06-13 20:34:49 krylon> */}}
 <table class="table table-script table-bordered caption-top">
   <caption>Records</caption>
   <thead>
@@ -12,9 +12,14 @@
     </tr>
   </thead>
 
-  <tbody>
+  <script>
+   $(document).ready(function() {
+     window.setTimeout(refresh_records, settings.messages.interval)
+   })
+  </script>
+  <tbody id="records">
     {{ range .Records }}
-    <tr>
+    <tr {{ if .Recent -}} class="alive" {{- end -}}>
       <td>
         <a href="/host/{{ .Hostname }}">
           {{ .Hostname }}

@@ -1,4 +1,4 @@
-/* Time-stamp: <2023-05-12 10:43:26 krylon> */
+/* Time-stamp: <2023-06-13 19:21:08 krylon> */
 
 body { 
     font-family: Arial,Helvetica,sans-serif;
@@ -162,4 +162,8 @@ div.body {
 
 input.cluster {
     width: 150px;
+}
+
+*.alive {
+    background-color: #90c090;
 }
