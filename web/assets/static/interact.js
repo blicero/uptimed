@@ -1,4 +1,4 @@
-// Time-stamp: <2023-06-13 21:39:46 krylon>
+// Time-stamp: <2023-06-15 08:43:11 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -1199,26 +1199,41 @@ function update_period() {
 } // function update_period()
 
 function refresh_table(records) {
-    const tbl = $("#records")[0]
+    const tbl = $(".record")
     const ts2 = Date.now()
 
+    let aliveCnt = 0
+    let deadCnt = 0
 
-    for (const row of tbl.children) {
-         const name = row.children[0].innerText
-
-         if (name in records) {
+    for (const row of tbl) {
+        const cells = row.children
+        const name = cells[0].innerText
+        if (name in records) {
             const rec = records[name]
-             row.children[2].innerText = fmtDuration((rec.Uptime/1e9).toFixed())
-             const ts1 = Date.parse(rec.Timestamp)
+            const ts1 = Date.parse(rec.Timestamp)
+            const delta = (ts2 - ts1) / 1000
 
-             if ((ts2 - ts1) / 1000 <= 600) {
+            if (delta <= 600) {
+                aliveCnt++
+                row.classList.add("alive")
+            } else {
+                deadCnt++
+                row.classList.remove("alive")
+            }
 
-             }
+            cells[1].innerText = rec.Timestamp
+            cells[2].innerText = fmtDuration((rec.Uptime/1e9).toFixed())
+
+            const load = `${rec.Load[0]} / ${rec.Load[1]} / ${rec.Load[2]}`
+
+            cells[3].innerText = load
+        } else {
+            console.log(`${name} was not found in records`)
         }
     }
+
+    console.log(`Updated records, ${aliveCnt} hosts are currently up, ${deadCnt} are not`)
 } // function refresh_table(records)
-
-
 
 function refresh_records() {
     const endpoint = "/ajax/get_recent"
@@ -1231,6 +1246,6 @@ function refresh_records() {
           },
           'json')
     } finally {
-        window.setTimeout(refresh_records, settings.messages.interval)
+        window.setTimeout(refresh_records, settings.records.interval)
     }
 } // function refresh_records()

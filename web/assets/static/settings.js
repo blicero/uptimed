@@ -1,4 +1,4 @@
-// Time-stamp: <2023-06-13 11:32:02 krylon>
+// Time-stamp: <2023-06-14 09:59:17 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2020 Benjamin Walkenhorst <krylon@gmx.net>
 
@@ -23,6 +23,10 @@ var settings = {
 
     "chart": {
         "period": 86400, // most recent data to render, age in seconds
+    },
+
+    "records": {
+        "interval": 30000,
     },
 };
 
