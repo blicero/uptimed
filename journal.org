@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2023-06-12 17:34:54 krylon>
+# Time-stamp: <2023-06-15 09:50:46 krylon>
 #
 #+TAGS: optimize(o) refactor(r) bug(b) feature(f) architecture(a)
 #+TAGS: web(w) database(d) javascript(j) ui(u)
@@ -13,18 +13,18 @@
   several systems and watch the recorded data in a web interface.
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 20
-   #+CAPTION: Clock summary at [2023-06-12 Mo 17:34]
+   #+CAPTION: Clock summary at [2023-06-15 Do 09:50]
    | Headline                                        | Time      |         |       |      |      |
    |-------------------------------------------------+-----------+---------+-------+------+------|
-   | *Total time*                                    | *2d 2:50* |         |       |      |      |
+   | *Total time*                                    | *2d 3:59* |         |       |      |      |
    |-------------------------------------------------+-----------+---------+-------+------+------|
-   | uptimed                                         | 2d 2:50   |         |       |      |      |
-   | \_  Components [2/5]                            |           | 2d 2:50 |       |      |      |
+   | uptimed                                         | 2d 3:59   |         |       |      |      |
+   | \_  Components [2/5]                            |           | 2d 3:59 |       |      |      |
    | \_    CLI [1/1]                                 |           |         |  0:22 |      |      |
    | \_      Specify address and port in separate... |           |         |       | 0:22 |      |
    | \_    Database [0/0]                            |           |         |  4:43 |      |      |
    | \_    mDNS [0/0]                                |           |         | 19:20 |      |      |
-   | \_    Server [3/4]                              |           |         | 21:05 |      |      |
+   | \_    Server [3/4]                              |           |         | 22:14 |      |      |
    | \_      Compression                             |           |         |       | 0:37 |      |
    | \_      Graphing                                |           |         |       | 3:37 |      |
    | \_      Settings                                |           |         |       | 3:41 |      |
@@ -81,6 +81,7 @@
     :VISIBILITY: children
     :END:
     :LOGBOOK:
+    CLOCK: [2023-06-15 Do 08:41]--[2023-06-15 Do 09:50] =>  1:09
     CLOCK: [2023-06-05 Mo 16:54]--[2023-06-05 Mo 17:37] =>  0:43
     CLOCK: [2023-06-05 Mo 09:56]--[2023-06-05 Mo 12:25] =>  2:29
     CLOCK: [2023-06-03 Sa 20:48]--[2023-06-03 Sa 23:22] =>  2:34
