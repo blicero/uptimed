@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2023-06-15 09:50:46 krylon>
+# Time-stamp: <2023-06-16 12:13:58 krylon>
 #
 #+TAGS: optimize(o) refactor(r) bug(b) feature(f) architecture(a)
 #+TAGS: web(w) database(d) javascript(j) ui(u)
@@ -75,7 +75,7 @@
     CLOCK: [2023-06-07 Mi 16:37]--[2023-06-07 Mi 22:57] =>  6:20
     :END:
     I want to use mDNS - if possible - to announce and find the server.
-*** Server [3/4]                                                        :web:
+*** Server [4/4]                                                        :web:
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: children
@@ -93,7 +93,8 @@
     client-server communication. I'll need the web server anyway, might as
     well use it for the clients instead of hand-rolling some half-baked
     protocol myself.
-**** TODO [#C] FastCGI
+**** CANCELLED [#C] FastCGI
+     CLOSED: [2023-06-16 Fr 12:13]
      I would like to use fcgi to access the server from a regular web
      server. I'm not entirely sure how to do that.
 **** DONE Compression
