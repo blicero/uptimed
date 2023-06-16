@@ -1,6 +1,6 @@
 {{ define "single_host" }}
 {{/* Created on 05. 06. 2023 */}}
-{{/* Time-stamp: <2023-06-13 11:23:00 krylon> */}}
+{{/* Time-stamp: <2023-06-15 17:41:40 krylon> */}}
 <!DOCTYPE html>
 <html>
   {{ template "head" . }}
@@ -8,18 +8,23 @@
   <body>
     {{ template "intro" . }}
 
-    <h4>{{ .Period }} Hour Load running average</h4>
-
     <script>
-     $(document.ready(function() {
-       let img = $("#chart")[0]
+     $(document).ready(() => {
+       const hl = $("#headline")[0]
+       const text = `${settings.chart.period / 3600} Hour Load running average`
+       hl.innerText = text
 
-       img.src += "?hours=${settings.chart.period / 3600}"
+       const div = $("#chart")[0]
+       // img.src += "?hours=${settings.chart.period / 3600}"
+       const img = `<img src="/chart/{{ .Hostname }}?hours=${settings.chart.period / 3600}" />`
        
-     })
+       div.innerHTML = img
+     })     
     </script>
-
-    <img id="chart" src="/chart/{{ .Hostname }}" loading="lazy" />
+    <h4 id="headline">{{ .Period }} Hour Load running average</h4>
+    <div id="chart">
+    </div>
+    {{/* <img id="chart" src="/chart/{{ .Hostname }}" /> */}}
 
     {{ template "records" . }}
 

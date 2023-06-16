@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 03. 06. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-06 23:43:27 krylon>
+// Time-stamp: <2023-06-15 17:30:23 krylon>
 
 package web
 
@@ -19,6 +19,7 @@ type tmplDataBase struct {
 	Debug     bool
 	URL       string
 	Clients   []common.Host
+	Refresh   bool
 }
 
 type tmplDataMain struct {

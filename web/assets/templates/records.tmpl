@@ -1,6 +1,6 @@
 {{ define "records" }}
 {{/* Created on 05. 06. 2023 */}}
-{{/* Time-stamp: <2023-06-14 09:59:24 krylon> */}}
+{{/* Time-stamp: <2023-06-15 17:31:09 krylon> */}}
 <table class="table table-script table-bordered caption-top">
   <caption>Records</caption>
   <thead>
@@ -12,11 +12,13 @@
     </tr>
   </thead>
 
+  {{ if .Refresh -}}
   <script>
    $(document).ready(function() {
      window.setTimeout(refresh_records, settings.records.interval)
    })
   </script>
+  {{ end }}
   <tbody id="records">
     {{ range .Records }}
     <tr class="record {{ if .Recent -}}alive" {{- end -}}">

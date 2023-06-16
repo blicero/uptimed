@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 02. 06. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-13 19:51:50 krylon>
+// Time-stamp: <2023-06-15 17:31:30 krylon>
 
 package web
 
@@ -204,6 +204,7 @@ func (srv *Server) handleMain(w http.ResponseWriter, r *http.Request) {
 				Debug:     common.Debug,
 				URL:       r.URL.String(),
 				Timestamp: time.Now(),
+				Refresh:   true,
 			},
 		}
 	)
