@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2023-06-16 12:13:58 krylon>
+# Time-stamp: <2023-06-17 15:30:10 krylon>
 #
 #+TAGS: optimize(o) refactor(r) bug(b) feature(f) architecture(a)
 #+TAGS: web(w) database(d) javascript(j) ui(u)
@@ -13,18 +13,18 @@
   several systems and watch the recorded data in a web interface.
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 20
-   #+CAPTION: Clock summary at [2023-06-15 Do 09:50]
+   #+CAPTION: Clock summary at [2023-06-17 Sa 15:30]
    | Headline                                        | Time      |         |       |      |      |
    |-------------------------------------------------+-----------+---------+-------+------+------|
    | *Total time*                                    | *2d 3:59* |         |       |      |      |
    |-------------------------------------------------+-----------+---------+-------+------+------|
    | uptimed                                         | 2d 3:59   |         |       |      |      |
-   | \_  Components [2/5]                            |           | 2d 3:59 |       |      |      |
+   | \_  Components [7/7]                            |           | 2d 3:59 |       |      |      |
    | \_    CLI [1/1]                                 |           |         |  0:22 |      |      |
    | \_      Specify address and port in separate... |           |         |       | 0:22 |      |
    | \_    Database [0/0]                            |           |         |  4:43 |      |      |
    | \_    mDNS [0/0]                                |           |         | 19:20 |      |      |
-   | \_    Server [3/4]                              |           |         | 22:14 |      |      |
+   | \_    Server [4/4]                              |           |         | 22:14 |      |      |
    | \_      Compression                             |           |         |       | 0:37 |      |
    | \_      Graphing                                |           |         |       | 3:37 |      |
    | \_      Settings                                |           |         |       | 3:41 |      |
@@ -32,7 +32,7 @@
    | \_    Client [1/1]                              |           |         |  5:20 |      |      |
    | \_      Offline buffering                       |           |         |       | 1:33 |      |
    #+END:
-** Components [2/5]
+** Components [7/7]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: children
@@ -65,7 +65,8 @@
     problems.
     *sigh* I'm going to use SQLite. There is no reason /not/ to use it,
     really.
-*** TODO [#F] mDNS [0/0]
+*** SUSPENDED [#F] mDNS [0/0]
+    CLOSED: [2023-06-17 Sa 15:28]
     :LOGBOOK:
     CLOCK: [2023-06-10 Sa 13:05]--[2023-06-10 Sa 21:27] =>  8:22
     CLOCK: [2023-06-09 Fr 23:11]--[2023-06-09 Fr 23:55] =>  0:44
@@ -75,6 +76,11 @@
     CLOCK: [2023-06-07 Mi 16:37]--[2023-06-07 Mi 22:57] =>  6:20
     :END:
     I want to use mDNS - if possible - to announce and find the server.
+
+    [2023-06-17 Sa 15:28]
+    After a while, I came to the opinion that mDNS is not that useful, too
+    complicated to get right, and on FreeBSD (and I think OpenBSD, too), it
+    didn't really work.
 *** Server [4/4]                                                        :web:
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
