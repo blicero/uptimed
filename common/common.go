@@ -2,7 +2,7 @@
 // -*- coding: utf-8; mode: go; -*-
 // Created on 23. 12. 2015 by Benjamin Walkenhorst
 // (c) 2015 Benjamin Walkenhorst
-// Time-stamp: <2023-06-15 17:42:31 krylon>
+// Time-stamp: <2024-02-23 16:19:54 krylon>
 
 // Package common provides constants, variables and functions used
 // throughout the application.
@@ -37,7 +37,7 @@ import (
 // their status.
 const (
 	Debug                    = true
-	Version                  = "0.3.0"
+	Version                  = "0.3.1"
 	AppName                  = "uptimed"
 	TimestampFormat          = "2006-01-02 15:04:05"
 	TimestampFormatMinute    = "2006-01-02 15:04"
@@ -64,7 +64,7 @@ var LogLevels = []logutils.LogLevel{
 var PackageLevels = make(map[logdomain.ID]logutils.LogLevel, len(LogLevels))
 
 // MinLogLevel is the mininum log level all loggers forward.
-const MinLogLevel = "TRACE"
+const MinLogLevel = "INFO"
 
 // EncJSON is the MIME type used for JSON payloads.
 const EncJSON = "application/json"
