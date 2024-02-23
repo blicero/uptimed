@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 02. 06. 2023 by Benjamin Walkenhorst
 // (c) 2023 Benjamin Walkenhorst
-// Time-stamp: <2023-06-15 17:31:30 krylon>
+// Time-stamp: <2024-02-23 16:19:33 krylon>
 
 package web
 
@@ -288,6 +288,10 @@ func (srv *Server) handleHost(w http.ResponseWriter, r *http.Request) {
 		srv.log.Printf("[ERROR] Failed to query data for Host %s: %s\n",
 			data.Hostname,
 			err.Error())
+	}
+
+	if len(data.Records) > 1000 {
+		data.Records = data.Records[:1000]
 	}
 
 	srv.lock.RLock()
